@@ -2,7 +2,7 @@ package tomasuloProj;
 
 public interface Cache {
 
-	public void Read();
-	public void Write();
+	public String Read(int wordAddress);
+	public void Write(int wordAddress, String data);
 	
 }
