@@ -45,6 +45,13 @@ public class MainMemory {
 		}
 		
 		return block;
+	
+	}
+	
+	
+	public static String ReadTemp(String wordAddress)
+	{
+		return RAM.get(wordAddress);
 	}
 	
 	

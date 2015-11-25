@@ -20,12 +20,44 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 		this.lengthTag = 16 - lengthIndex - lengthOffset;
 		lines = new CacheLine[s/l];
 		this.DirtyBit = new boolean[s/l];
+		hier.add(this);
 	}
 
+	// called only when we know that certain line needs to be pushed to cache
+	 void addToCache(int wordAddress)
+	{
+		// get index and place cache line at given index
+		// must check for write back and dirty bit
+		String word = Integer.toBinaryString(wordAddress);
+		String tagBinary = word.substring(lengthTag);
+		String indexBinary = word.substring(lengthTag,lengthTag + lengthIndex);
+		String offsetBinary = word.substring(lengthTag + lengthIndex,16);
+		int index = Integer.parseInt(indexBinary,2);
+		
+		// check if cache line is dirty and writeback
+		if(this.WriteBack)
+		{
+			if(DirtyBit[index])
+			{
+				String memAddress = lines[index].Tag + Integer.toBinaryString(index);
+				
+				// adding zeroes to adjust for missing offset bits in extracted address
+				for(int i=0; i<this.lengthOffset; i++)
+					memAddress+="0";
+				MainMemory.Insert(memAddress, lines[index].Data, this.BlockSize);
+			}
+		}
+		
+		String data = MainMemory.Read(wordAddress, this.BlockSize);
+		CacheLine temp = new CacheLine(data, tagBinary);
+		this.lines[index] = temp;
+		 
+	}
 
 	@Override
 	public String Read(int wordAddress) 
 	{
+		
 		
 		// converting wordaddress to binary
 		// extract index, tag,offset
@@ -46,6 +78,10 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 				return lines[index].Data;
 			else
 			{
+				// check in lower level
+				
+				//this.hier.get(currentCachePosition).;
+				
 				// check if the data in this location was modified
 				// if modified then must write to memory in case of writeBack
 				// if modified but writeThrough then i only need to replace cache line
