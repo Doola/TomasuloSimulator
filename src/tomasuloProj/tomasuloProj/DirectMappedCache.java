@@ -21,4 +21,10 @@ public class DirectMappedCache implements Cache{
 		
 	}
 
+	@Override
+	public void Write(CacheLine line) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

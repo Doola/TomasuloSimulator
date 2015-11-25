@@ -13,7 +13,7 @@ public class MainMemory {
 	}
 	
 	// Must check that address of data is not > 64KB
-	public void Insert(int address , int data)
+	public static void Insert(int address , int data)
 	{
 		
 	}
