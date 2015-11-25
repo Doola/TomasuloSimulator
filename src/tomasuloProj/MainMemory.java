@@ -31,10 +31,20 @@ public class MainMemory {
 		}
 	}
 	
-	public static String Read(int wordAddress)
+	public static String Read(int wordAddress, int blockSize)
 	{
-		String address = Integer.toBinaryString(wordAddress);
-		return RAM.get(address);
+		// must return block equivilant to block size of cache
+		// fetch addresses in order till block is full
+		
+		String block = "";
+		for(int i=0; i<blockSize; i++)
+		{
+			String address = Integer.toBinaryString(wordAddress);
+			block += RAM.get(address);
+			wordAddress++;
+		}
+		
+		return block;
 	}
 	
 	

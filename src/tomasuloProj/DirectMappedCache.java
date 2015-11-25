@@ -4,7 +4,9 @@ import tomasuloProj.MainMemory;
 
 public class DirectMappedCache extends TheBigCache implements Cache{
 	
+	// array of data type cache lines, representing individal lines in the cache
 	CacheLine[] lines;
+	// to be used for write back
 	boolean[] DirtyBit;
 	
 	
@@ -13,6 +15,7 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 		// since direct mapped needs assosciativity to be equal to 1
 		super(s,l,1);
 		this.lengthIndex = (int) (Math.log(s/l)/Math.log(2));
+		// this assumes that we are always word addressable
 		this.lengthOffset = (int) (Math.log(l)/Math.log(2));
 		this.lengthTag = 16 - lengthIndex - lengthOffset;
 		lines = new CacheLine[s/l];
@@ -23,27 +26,77 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 	@Override
 	public String Read(int wordAddress) 
 	{
-		// get index, tag and offset
 		
+		// converting wordaddress to binary
+		// extract index, tag,offset
 		String word = Integer.toBinaryString(wordAddress);
 		String tagBinary = word.substring(lengthTag);
 		String indexBinary = word.substring(lengthTag,lengthTag + lengthIndex);
 		String offsetBinary = word.substring(lengthTag + lengthIndex,16);
 		int index = Integer.parseInt(indexBinary,2);
 		
+		// get cache line
 		// if not valid then its an empty cacheLine
-		// if valid but tags are not equal then must fetch from memory
+		// if valid but tags are not equal then must fetch from memory and replace cache line
+		// before replacing in memory must check if write back then 
 		
-		if(lines[index].ValidBit && lines[index].Tag.equals(tagBinary))
+		if(lines[index].ValidBit)
 		{
-			return lines[index].Data;
+			if(lines[index].Tag.equals(tagBinary))
+				return lines[index].Data;
+			else
+			{
+				// check if the data in this location was modified
+				// if modified then must write to memory in case of writeBack
+				// if modified but writeThrough then i only need to replace cache line
+				if(this.WriteBack)
+				{
+					// copy data to memory location if dirty bit set
+					// fetch new data from memory and put in cache
+					if(DirtyBit[index])
+					{
+						// address in memory is extracted by concatenating tag..index..offset
+						// 
+						String memAddress = lines[index].Tag + Integer.toBinaryString(index);
+			
+						// adding zeroes to adjust for missing offset bits in extracted address
+						for(int i=0; i<this.lengthOffset; i++)
+							memAddress+="0";
+						MainMemory.Insert(memAddress, lines[index].Data, this.BlockSize);
+						
+						
+						CacheLine temp = new CacheLine(MainMemory.Read(wordAddress,this.BlockSize), tagBinary);
+						lines[index] = temp;
+						
+					}
+					
+					else
+					{
+						// no need to copy data to memory since not modified
+						String data = MainMemory.Read(wordAddress,this.BlockSize);
+						CacheLine temp = new CacheLine(data, tagBinary);
+						lines[index] = temp;
+						
+					}
+					
+				}
+				
+				else
+				{
+					// then its write through so cache and main memory are consistant
+					String data = MainMemory.Read(wordAddress,this.BlockSize);
+					CacheLine temp = new CacheLine(data, tagBinary);
+					lines[index] = temp;
+				}
+				
+			}
 		}
 		
 		// fetching data from main memory and inserting into cache
 		
 		else
 		{
-			String data = MainMemory.Read(wordAddress);
+			String data = MainMemory.Read(wordAddress,this.BlockSize);
 			CacheLine temp = new CacheLine(data, tagBinary);
 			lines[index] = temp;
 		}
@@ -63,6 +116,7 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 	
 	public void WriteBack(int wordAddress, String data)
 	{
+		
 		String word = Integer.toBinaryString(wordAddress);
 		String tagBinary = word.substring(lengthTag);
 		String indexBinary = word.substring(lengthTag,lengthTag + lengthIndex);
@@ -95,10 +149,6 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 				// adding zeroes to adjust for missing offset bits in extracted address
 				for(int i=0; i<this.lengthOffset; i++)
 					address+="0";
-				
-				// change memory write to adjust to block sizes
-				// will pass starting address to memory and block size 
-				// will iterate until full block is copied to memory
 				MainMemory.Insert(address, DataToMemory, this.BlockSize);
 				
 			}

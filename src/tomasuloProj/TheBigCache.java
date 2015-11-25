@@ -2,7 +2,8 @@ package tomasuloProj;
 
 public class TheBigCache {
 	int Size, BlockSize, assosciativity, lengthIndex, lengthOffset, lengthTag;
-	boolean WriteBack;
+	
+	boolean WriteBack, WriteThrough;
 	
 	public TheBigCache(int S, int L, int m)
 	{
