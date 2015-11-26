@@ -47,8 +47,10 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 				MainMemory.Insert(memAddress, lines[index].Data, this.BlockSize);
 			}
 		}
-		
-		String data = MainMemory.Read(wordAddress, this.BlockSize);
+		// the word address passed should be shifted to be the address
+		// of the start of the block.
+		int blockOffset = Integer.parseInt(offsetBinary,2);
+		String[] data = MainMemory.Read(wordAddress - blockOffset, this.BlockSize);
 		CacheLine temp = new CacheLine(data, tagBinary);
 		this.lines[index] = temp;
 		 
@@ -75,7 +77,7 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 		if(lines[index].ValidBit)
 		{
 			if(lines[index].Tag.equals(tagBinary))
-				return lines[index].Data;
+				return lines[index].Data[Integer.parseInt(offsetBinary,2)];
 			else
 			{
 				// check in lower level
@@ -87,6 +89,9 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 				// if modified but writeThrough then i only need to replace cache line
 				if(this.WriteBack)
 				{
+					
+					// check levels el ta7t fi el caches awy and remove the instruction from the lower levels
+					
 					// copy data to memory location if dirty bit set
 					// fetch new data from memory and put in cache
 					if(DirtyBit[index])
@@ -96,6 +101,11 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 						String memAddress = lines[index].Tag + Integer.toBinaryString(index);
 			
 						// adding zeroes to adjust for missing offset bits in extracted address
+						// this creates the address of the start of the block
+						// *********************************************************
+						// *********************************************************
+						// *********************************************************
+						// I need to write the changed data in the lower levels of the cache
 						for(int i=0; i<this.lengthOffset; i++)
 							memAddress+="0";
 						MainMemory.Insert(memAddress, lines[index].Data, this.BlockSize);
@@ -109,7 +119,7 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 					else
 					{
 						// no need to copy data to memory since not modified
-						String data = MainMemory.Read(wordAddress,this.BlockSize);
+						String[] data = MainMemory.Read(wordAddress,this.BlockSize);
 						CacheLine temp = new CacheLine(data, tagBinary);
 						lines[index] = temp;
 						
