@@ -1,3 +1,4 @@
+package tomasuloProj;
 public class Line {
 	public int ValidityBit;
 	public String tag;
