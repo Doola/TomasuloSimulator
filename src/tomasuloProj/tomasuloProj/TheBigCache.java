@@ -3,8 +3,6 @@ package tomasuloProj;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import tomasuloProj.MainMemory;
-
 public abstract class TheBigCache implements Cache{
 	int Size, BlockSize, assosciativity, lengthIndex, lengthOffset, lengthTag;
 	boolean WriteBack, WriteThrough;
@@ -34,6 +32,9 @@ public abstract class TheBigCache implements Cache{
 	@Override
 	public void Write(int wordAddress, String data) {
 		// TODO Auto-generated method stub
+		
+	}
+	public void WriteThrough(int wordAddress, String data){
 		
 	}
 	

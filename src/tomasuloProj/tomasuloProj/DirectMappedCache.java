@@ -212,7 +212,6 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 		MainMemory.Insert(word, data, this.BlockSize);
 	}
 
-	@Override
 	public void Write(CacheLine line) {
 		// TODO Auto-generated method stub
 		
