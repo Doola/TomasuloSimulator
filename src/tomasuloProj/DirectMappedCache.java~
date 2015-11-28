@@ -160,7 +160,6 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 		
 	}
 	
-
 	public void WriteBack(int wordAddress, String[] data)
 	{
 		
@@ -207,7 +206,7 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 
 	}
 	
-	public void WriteThrough(int wordAddress, String[] data)
+	public void WriteThrough(int wordAddress, String data)
 	{
 		String word = Integer.toBinaryString(wordAddress);
 		String tagBinary = word.substring(lengthTag);
