@@ -11,9 +11,10 @@ public class FullyAsosciativeCache extends TheBigCache implements Cache{
 	
 	public FullyAsosciativeCache(int S, int L, int m) {
 		super(S, L, m);
+		L*=16;
 		this.lengthIndex = 0;
 		// this assumes that we are always word addressable
-		maxNumberLines = S/this.BlockSize;
+		maxNumberLines = S/L;
 		this.lengthOffset = (int) (Math.log(L)/Math.log(2));
 		this.lengthTag = 16 - lengthIndex - lengthOffset;
 		lines = new LinkedList<CacheLine>();
