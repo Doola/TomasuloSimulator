@@ -16,7 +16,8 @@ public abstract class TheBigCache implements Cache{
 	public TheBigCache(int S, int L, int m)
 	{
 		this.Size = S;
-		this.BlockSize = L;
+		// assuming we are given number of words not bits
+		this.BlockSize = L/16;
 		this.assosciativity = m;
 	}
 
