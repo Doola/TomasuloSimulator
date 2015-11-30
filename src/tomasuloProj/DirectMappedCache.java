@@ -53,6 +53,7 @@ public class DirectMappedCache extends TheBigCache implements Cache{
 				// this gives us the address of the start of block for this specific cache
 				for(int i=0; i<this.lengthOffset; i++)
 					memAddress+="0";
+				//#CPI
 				MainMemory.Insert(memAddress, lines[index].Data, this.BlockSize);
 			}
 		}

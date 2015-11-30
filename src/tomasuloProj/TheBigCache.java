@@ -41,6 +41,7 @@ public abstract class TheBigCache implements Cache{
 		// the block size is different for each cache so we need to pass block size
 		// and call this recursively till we are at the top level.
 		addToCache(wordAddress);
+		// #CPI
 		return MainMemory.ReadTemp(Integer.toBinaryString(wordAddress));
 	}
 
@@ -52,16 +53,19 @@ public abstract class TheBigCache implements Cache{
 	public boolean Write(int wordAddress, String data) {
 		
 		for (int i = 0; i < hier.size(); i++) {
+			// #CPI
 			if(hier.get(i).Write(wordAddress, data))
 			{
 				if(!hier.get(i).WriteBack)
 				{
+					// #CPI
 					MainMemory.RAM.put(Integer.toBinaryString(wordAddress), data);
 				}
 				return true;
 			}
 		}
 		
+		// # CPI
 		// #jolly
 		// must add to cache and then write 
 		// do i add it to cache then write or write mn el awel
