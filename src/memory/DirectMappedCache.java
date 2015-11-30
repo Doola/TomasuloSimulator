@@ -1,6 +1,5 @@
-package tomasuloProj;
+package memory;
 
-import tomasuloProj.MainMemory;
 
 public class DirectMappedCache extends TheBigCache implements Cache{
 	

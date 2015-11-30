@@ -1,4 +1,4 @@
-package tomasuloProj;
+package memory;
 
 public class CacheLine {
 

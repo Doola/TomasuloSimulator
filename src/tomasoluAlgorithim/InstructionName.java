@@ -1,4 +1,4 @@
-package tomasuloProj;
+package tomasoluAlgorithim;
 
 public enum InstructionName 
 {

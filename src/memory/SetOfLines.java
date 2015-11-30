@@ -1,4 +1,5 @@
-package tomasuloProj;
+package memory;
+
 
 public class SetOfLines{
 	public CacheLine [] Lines;

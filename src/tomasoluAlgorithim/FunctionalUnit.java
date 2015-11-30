@@ -1,13 +1,14 @@
-package tomasuloProj;
+package tomasoluAlgorithim;
 
-public class FU {
-	FU_Name name;
+public class FunctionalUnit {
+	FunctionalUnitName name;
 	InstructionName operation;
 	boolean busy;
 	Register Vi, Vj;
 	int Qi, Qj, ROBDST, Address;
+	int cycles;
 
-	public FU(FU_Name name, InstructionName operation, boolean busy,
+	public FunctionalUnit(FunctionalUnitName name, InstructionName operation, boolean busy,
 			Register Vi, Register Vj, int Qi, int Qj, int ROBDST, int Address) {
 		this.name = name;
 		this.Address = Address;

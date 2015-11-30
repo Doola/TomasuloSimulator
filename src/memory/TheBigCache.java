@@ -1,9 +1,7 @@
-package tomasuloProj;
+package memory;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-
-import tomasuloProj.MainMemory;
 
 public abstract class TheBigCache implements Cache{
 	int Size, BlockSize, assosciativity, lengthIndex, lengthOffset, lengthTag;
