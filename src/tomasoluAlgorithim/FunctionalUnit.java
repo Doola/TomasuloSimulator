@@ -8,6 +8,9 @@ public class FunctionalUnit {
 	int Qi, Qj, ROBDST, Address;
 	int cycles;
 	int destination;
+	int cyclesRemaining;
+	String value;
+	
 
 	public FunctionalUnit(FunctionalUnitName name, InstructionName operation,
 			boolean busy, Register Vi, Register Vj, int Qi, int Qj, int ROBDST,

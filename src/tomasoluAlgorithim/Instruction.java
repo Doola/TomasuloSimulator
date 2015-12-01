@@ -6,6 +6,7 @@ public class Instruction
 	RegisterName Rs,Rd,Rt;
 	Stage Stage;
 	int immediateValue;
+	int executionCycles;
 	
 	// Instructions manual
 	// *****************************************************************

@@ -2,6 +2,8 @@ package tomasoluAlgorithim;
 
 import java.util.ArrayList;
 
+import sun.misc.Queue;
+
 public class Main {
 	static int ROBSize;
 	static int NumberOfReservationStations;
@@ -19,6 +21,9 @@ public class Main {
 	static int CurrentInstruction = 0;
 	static ArrayList<Stage>[] TheBigTable;
 	static boolean first = true;
+	static boolean CanWrite =true;
+	static Queue WriteQueu = new Queue();
+	
 
 	// static Queue ROBTable;
 	public Main() {
@@ -26,6 +31,7 @@ public class Main {
 			RegisterFile[i] = new Register(RegisterName.valueOf("R" + i), "");
 		}
 		RegisterFile[0] = new Register(RegisterName.valueOf("R0"), "0");
+		
 	}
 
 	public static void Intialise() {
@@ -81,14 +87,14 @@ public class Main {
 	}
 
 	public static void Issue() {
-		// check if there is an empty functional unit to server instruction
+		
 		int freeReservationStation = findFreeReservationStation(ProgramCode[CurrentInstruction].Name);
-		if (!ReservationStations[freeReservationStation].busy && head != tail
-				&& !first) // and rob is has an empty slot
+		if ((!ReservationStations[freeReservationStation].busy && head != tail)
+				|| first) 
 		{
+			first = false;
 			ReservationStations[freeReservationStation].busy = true;
 			ReservationStations[freeReservationStation].operation = ProgramCode[CurrentInstruction].Name;
-			// add destination to reservations stations
 			ReservationStations[freeReservationStation].destination = tail;
 			// add conditions for load and store
 			// *********************************
@@ -97,7 +103,7 @@ public class Main {
 			// *********************************
 			// *********************************
 			// *********************************
-			// Check Register status, if register is free
+			
 			if (FreeRegisterStatus(ProgramCode[CurrentInstruction].Rs)) {
 				ReservationStations[freeReservationStation].Vi.Name = ProgramCode[CurrentInstruction].Rs;
 			} else {
@@ -114,55 +120,116 @@ public class Main {
 				int registerIndex = Integer.parseInt(s);
 				ReservationStations[freeReservationStation].Qj = RegisterStatus[registerIndex];
 			}
-			// if inst. is load or store , type should be equal to ld,st
-			ROB[tail].type = ROBType.INT;
+			
+			if(ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
+			{
+				ReservationStations[freeReservationStation].Address=ProgramCode[CurrentInstruction].immediateValue;
+			}
+			
+			if(ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
+				ROB[tail].type = ROBType.SD;
+			else if (ProgramCode[CurrentInstruction].Name.toString().equals("LW"))
+				ROB[tail].type = ROBType.LD;
+			else
+				ROB[tail].type = ROBType.INT;
+			
 			ROB[tail].Destination.Name = ProgramCode[CurrentInstruction].Rd;
 			tail++;
+			
 			// check if tail reached the end of table
 			if (tail > ROBSize)
 				tail = 1;
-		} else if (first)
-			first = false;
-		// if (!ReservationStations[freeReservationStation].busy && head != tail
-		// && first)
-		// {
-		// first = !first;
-		// }
+		} 
 	}
 
-	public static void Execute() {
+	public static void Execute() 
+	{
 		// loop over all functions in RS and execute them if operands are ready
 		// execute: calculate the number of cycles need to finish execution/
 		// add to write array
 		// actaully execute
-		for (int i = 0; i < ReservationStations.length; i++) {
-			// if operands are ready --> execute
+		for (int i = 0; i < ReservationStations.length; i++)
+		{
+			if(ReservationStations[i].Qi ==0 && ReservationStations[i].Qj==0 && ReservationStations[i].cyclesRemaining >= 0)
+				
 			{
-				// switch cases: example--> if add int x = rs+rt // add takes 3
-				// cycles
-				// add 3 to write array (add in array the clock cycle and
-				// corresponding dest)
-				// howa fi eih
+				//Execute the instruction then
+				
+				if(ReservationStations[i].cyclesRemaining == 0)
+				{
+				   ReservationStations[i].value="store the value bitch"; //call func calculate value (check load store in lec 14)
+				   // put the whole reservation station in a queue
+				   WriteQueu.enqueue(ReservationStations[i]);
+				 
+				}
+				
+				ReservationStations[i].cyclesRemaining --;
 			}
 		}
 	}
 
-	public static void WriteBack() {
-		// current clock cyle, if current clock cycle == cycle number in array..
-		// go write the value in that dest
-		// after you finish an instruction write the value in rob (as mentioned
-		// above)
-		// and entry from reservation station
-		// ********check that the exection will happen in the following cycle:::
-		// zay el PA*********
+	public static void WriteBack() throws InterruptedException {
+		// the conditions i need are can write and loop over fu that should write bs
+		
+		if(!WriteQueu.isEmpty()){
+			 FunctionalUnit temp = (FunctionalUnit)WriteQueu.dequeue(); // check if errors ,yasser:D
+			if(temp.cyclesRemaining == -1 && CanWrite)
+			{
+				CanWrite = !CanWrite;
+				ROB[temp.destination].Value = temp.value;
+				//if store
+				if(temp.name.equals("STORE") && temp.Qj == 0)
+					ROB[temp.destination].Value = temp.Vi.Name.toString();
+				ROB[temp.destination].Ready =true;
+			
+				String s = ROB[temp.destination].Destination.Name.toString().substring(1);
+				int registerIndex = Integer.parseInt(s);
+				for (int k = 0; k < ReservationStations.length; k++)
+				{
+					if(ReservationStations[k].Qi == RegisterStatus[registerIndex])
+						ReservationStations[k].Qi =0;
+					
+					if(ReservationStations[k].Qj == RegisterStatus[registerIndex])
+						ReservationStations[k].Qj =0;
+				}
+				
+				temp.busy=false;
+				RegisterStatus[registerIndex]=0;
+				
+				
+			}
+		}
+		
 	}
 
-	public static void Commit() {
-		// if rob[head] == ready then commit--> save value in Memory/REG then
-		// head ++
-		// if(head>ROBSize) head=1;
+	public static void Commit() 
+	{
+		//wrong prediction 
+		for (int i = 0; i < ROB.length; i++) 
+		{
+			if(ROB[i].Ready && head==i)
+			{
+				// save value in Memory/REG then (cahce)
+				// if store , des= address, in memory ,Mem[rob.Dest]=value
+				head ++;
+				if(head>ROB.length)
+					head=1;
+			}
+			
+		}
+		
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
+		
+		while(true
+				)
+		{
+			Fetch();
+			Issue();
+			Execute();
+			WriteBack();
+//			cycles++;
+		}
 	}
 }
