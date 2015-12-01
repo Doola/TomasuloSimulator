@@ -2,10 +2,7 @@ package tomasoluAlgorithim;
 
 import java.util.ArrayList;
 
-import sun.misc.Queue;
-
 public class Main {
-
 	static int ROBSize;
 	static int NumberOfReservationStations;
 	static int NumberOfRegisters;
@@ -24,7 +21,6 @@ public class Main {
 	static boolean first = true;
 
 	// static Queue ROBTable;
-
 	public Main() {
 		for (int i = 1; i < 32; i++) {
 			RegisterFile[i] = new Register(RegisterName.valueOf("R" + i), "");
@@ -34,7 +30,6 @@ public class Main {
 
 	public static void Intialise() {
 		// numberOfInstructions = ????
-
 		TheBigTable = (ArrayList<Stage>[]) new ArrayList[NumberOfInstructions];
 	}
 
@@ -77,7 +72,6 @@ public class Main {
 		{
 			return true;
 		}
-
 		return false;
 	}
 
@@ -88,13 +82,14 @@ public class Main {
 
 	public static void Issue() {
 		// check if there is an empty functional unit to server instruction
-
 		int freeReservationStation = findFreeReservationStation(ProgramCode[CurrentInstruction].Name);
-
-		if (!ReservationStations[freeReservationStation].busy && head != tail && !first) // and rob is has an empty slot
+		if (!ReservationStations[freeReservationStation].busy && head != tail
+				&& !first) // and rob is has an empty slot
 		{
 			ReservationStations[freeReservationStation].busy = true;
 			ReservationStations[freeReservationStation].operation = ProgramCode[CurrentInstruction].Name;
+			// add destination to reservations stations
+			ReservationStations[freeReservationStation].destination = tail;
 			// add conditions for load and store
 			// *********************************
 			// *********************************
@@ -110,7 +105,6 @@ public class Main {
 						.substring(1);
 				int registerIndex = Integer.parseInt(s);
 				ReservationStations[freeReservationStation].Qi = RegisterStatus[registerIndex];
-			
 			}
 			if (FreeRegisterStatus(ProgramCode[CurrentInstruction].Rd)) {
 				ReservationStations[freeReservationStation].Vj.Name = ProgramCode[CurrentInstruction].Rd;
@@ -119,34 +113,56 @@ public class Main {
 						.substring(1);
 				int registerIndex = Integer.parseInt(s);
 				ReservationStations[freeReservationStation].Qj = RegisterStatus[registerIndex];
-				
 			}
 			// if inst. is load or store , type should be equal to ld,st
-			ROB[tail].type=ROBType.INT;
+			ROB[tail].type = ROBType.INT;
 			ROB[tail].Destination.Name = ProgramCode[CurrentInstruction].Rd;
-
-		}
-		else if(first) first = false;
-//		if (!ReservationStations[freeReservationStation].busy && head != tail && first) 
-//		{
-//			first = !first;
-//		}
-
+			tail++;
+			// check if tail reached the end of table
+			if (tail > ROBSize)
+				tail = 1;
+		} else if (first)
+			first = false;
+		// if (!ReservationStations[freeReservationStation].busy && head != tail
+		// && first)
+		// {
+		// first = !first;
+		// }
 	}
 
 	public static void Execute() {
-
+		// loop over all functions in RS and execute them if operands are ready
+		// execute: calculate the number of cycles need to finish execution/
+		// add to write array
+		// actaully execute
+		for (int i = 0; i < ReservationStations.length; i++) {
+			// if operands are ready --> execute
+			{
+				// switch cases: example--> if add int x = rs+rt // add takes 3
+				// cycles
+				// add 3 to write array (add in array the clock cycle and
+				// corresponding dest)
+				// howa fi eih
+			}
+		}
 	}
 
 	public static void WriteBack() {
-
+		// current clock cyle, if current clock cycle == cycle number in array..
+		// go write the value in that dest
+		// after you finish an instruction write the value in rob (as mentioned
+		// above)
+		// and entry from reservation station
+		// ********check that the exection will happen in the following cycle:::
+		// zay el PA*********
 	}
 
 	public static void Commit() {
-
+		// if rob[head] == ready then commit--> save value in Memory/REG then
+		// head ++
+		// if(head>ROBSize) head=1;
 	}
 
 	public static void main(String[] args) {
-
 	}
 }
