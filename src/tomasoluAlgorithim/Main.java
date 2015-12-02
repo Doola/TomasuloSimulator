@@ -141,7 +141,41 @@ public class Main {
 				tail = 1;
 		} 
 	}
-
+	//Called in execute to do the actual operation
+	public static String CalculateValue(FunctionalUnit fu){
+		switch (fu.operation){
+		case InstructionName.LW:
+			//get from memory
+			break;
+		case InstructionName.SW:
+			//inser in memory
+			break;
+		case InstructionName.JMP: 
+			break;
+		case InstructionName.BEQ: 
+			break;
+		case InstructionName.JALR: 
+			break;
+		case InstructionName.RET: 
+			break;
+		case InstructionName.ADD: 
+			return fu.Vi.Value+fu.Vj.Value+""; 
+			break;
+		case InstructionName.SUB: 
+			return fu.Vi.Value-fu.Vj.Value+""; 
+			break;
+		case InstructionName.ADDI: 
+			return fu.Vi.Value+fu.imm+""; 
+			break;
+		case InstructionName.NAND: 
+			return !(fu.Vi.Value & fu.Vj.Value)+"";
+			break;
+		case InstructionName.MUL: 
+			return fu.Vi.Value*fu.Vj.Value+""; 
+			break;
+		}
+	}
+	
 	public static void Execute() 
 	{
 		// loop over all functions in RS and execute them if operands are ready
@@ -157,7 +191,7 @@ public class Main {
 				
 				if(ReservationStations[i].cyclesRemaining == 0)
 				{
-				   ReservationStations[i].value="store the value bitch"; //call func calculate value (check load store in lec 14)
+				   ReservationStations[i].value=CalculateValue(ReservationStations[i]); //done call func calculate value (check load store in lec 14)
 				   // put the whole reservation station in a queue
 				   WriteQueu.enqueue(ReservationStations[i]);
 				 
