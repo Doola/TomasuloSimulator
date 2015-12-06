@@ -224,7 +224,7 @@ public class Main {
 				}
 				
 				temp.busy=false;
-				RegisterStatus[registerIndex]=0;
+				
 				
 				
 			}
@@ -241,6 +241,7 @@ public class Main {
 			{
 				// save value in Memory/REG then (cahce)
 				// if store , des= address, in memory ,Mem[rob.Dest]=value
+				RegisterStatus[registerIndex]=0;
 				head ++;
 				if(head>ROB.length)
 					head=1;
