@@ -22,7 +22,7 @@ public class Main {
 	static ArrayList<Stage>[] TheBigTable;
 	static boolean first = true;
 	static boolean CanWrite =true;
-	static Queue WriteQueu = new Queue();
+	//static Queue WriteQueu = new Queue();
 	
 
 	// static Queue ROBTable;
@@ -144,36 +144,32 @@ public class Main {
 	//Called in execute to do the actual operation
 	public static String CalculateValue(FunctionalUnit fu){
 		switch (fu.operation){
-		case InstructionName.LW:
+		case LW:
 			//get from memory
 			break;
-		case InstructionName.SW:
-			//inser in memory
+		case SW:
+			//insert in memory
 			break;
-		case InstructionName.JMP: 
+		case JMP: 
 			break;
-		case InstructionName.BEQ: 
+		case BEQ: 
 			break;
-		case InstructionName.JALR: 
+		case JALR: 
 			break;
-		case InstructionName.RET: 
+		case RET: 
 			break;
-		case InstructionName.ADD: 
-			return fu.Vi.Value+fu.Vj.Value+""; 
-			break;
-		case InstructionName.SUB: 
-			return fu.Vi.Value-fu.Vj.Value+""; 
-			break;
-		case InstructionName.ADDI: 
-			return fu.Vi.Value+fu.imm+""; 
-			break;
-		case InstructionName.NAND: 
-			return !(fu.Vi.Value & fu.Vj.Value)+"";
-			break;
-		case InstructionName.MUL: 
-			return fu.Vi.Value*fu.Vj.Value+""; 
-			break;
+		case ADD: 
+			return Integer.parseInt(fu.Vi.Value)+Integer.parseInt(fu.Vj.Value)+""; 
+		case SUB: 
+			return Integer.parseInt(fu.Vi.Value)-Integer.parseInt(fu.Vj.Value)+""; 
+		case ADDI: 
+			return Integer.parseInt(fu.Vi.Value)+fu.imm+"";
+		case NAND: 
+			return ~(Integer.parseInt(fu.Vi.Value) & Integer.parseInt(fu.Vj.Value))+"" ;
+		case MUL: 
+			return Integer.parseInt(fu.Vi.Value)*Integer.parseInt(fu.Vj.Value)+"";
 		}
+		return null;
 	}
 	
 	public static void Execute() 
