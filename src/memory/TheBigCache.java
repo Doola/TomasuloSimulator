@@ -61,7 +61,10 @@ public class TheBigCache implements Cache{
 		// the block size is different for each cache so we need to pass block size
 		// and call this recursively till we are at the top level.
 		addToCache(wordAddress);
-		return MainMemory.ReadTemp(Integer.toBinaryString(wordAddress));
+		String address = Integer.toBinaryString(wordAddress);
+		while(address.length() < 16)
+			address = "0" + address;
+		return MainMemory.ReadTemp(address);
 	}
 
 	@Override

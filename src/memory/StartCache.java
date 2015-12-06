@@ -63,13 +63,13 @@ public class StartCache {
 		DirectMappedCache b = new DirectMappedCache(s,l,1);
 		DirectMappedCache c = new DirectMappedCache(s,l,1);
 		cache.hier.add(a);
-		cache.hier.add(b);
-		cache.hier.add(c);
+		//cache.hier.add(b);
+		//cache.hier.add(c);
 		
 		
 		CacheLine temp = new CacheLine(new String[]{"yaaay","read","works"}, "000000");
 		//a.lines[0] = temp;
-		//c.lines[0] = temp;
+		c.lines[0] = temp;
 
 		//cache.hier.get(0).Write(Integer.parseInt(add1,2), "adeeeeeeeeeek");
 		cache.Write(0, "yad");

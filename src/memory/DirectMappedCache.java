@@ -36,7 +36,7 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		for (int i = word.length(); i <= 16; i++) {
 			word = "0" + word;
 		}
-		String tagBinary = word.substring(0, lengthTag+1);
+		String tagBinary = word.substring(0, lengthTag);
 		String indexBinary = word.substring(lengthTag+1, lengthTag + lengthIndex +1);
 		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 		int index = Integer.parseInt(indexBinary, 2);
@@ -125,7 +125,7 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		for (int i = word.length(); i <= 16; i++) {
 			word = "0" + word;
 		}
-		String tagBinary = word.substring(0, lengthTag+1);
+		String tagBinary = word.substring(0, lengthTag);
 		String indexBinary = word.substring(lengthTag+1, lengthTag + lengthIndex +1);
 		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 		int index = Integer.parseInt(indexBinary, 2);
@@ -270,7 +270,7 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		for (int i = word.length(); i <= 16; i++) {
 			word = "0" + word;
 		}
-		String tagBinary = word.substring(0, lengthTag+1);
+		String tagBinary = word.substring(0, lengthTag);
 		String indexBinary = word.substring(lengthTag+1, lengthTag + lengthIndex +1);
 		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 		int index = Integer.parseInt(indexBinary, 2);

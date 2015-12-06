@@ -42,8 +42,12 @@ public class MainMemory {
 	public static String[] Read(int wordAddress, int blockSize) {
 		// we pass the starting address of the block we want to read
 		String[] block = new String[blockSize];
+		
 		for (int i = 0; i < block.length; i++) {
-			block[i] = RAM.get(Integer.toBinaryString(wordAddress + i));
+			String address = Integer.toBinaryString(wordAddress + i);
+			while(address.length() < 16)
+				address = "0" + address;
+			block[i] = RAM.get(address);
 		}
 		return block;
 	}
