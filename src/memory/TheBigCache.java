@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 public abstract class TheBigCache implements Cache{
-	int Size, BlockSize, assosciativity, lengthIndex, lengthOffset, lengthTag;
+	int Size, BlockSize, assosciativity, lengthIndex,
+	lengthOffset, lengthTag; 
+	double accessTime, numberOfMisses, numberOfAccesses;
 	boolean WriteBack, WriteThrough;
 	
 	static LinkedList<TheBigCache> hier;
 	static int currentCachePosition = 0;
+
 	
 	
 	public TheBigCache(int S, int L, int m)
@@ -19,18 +22,32 @@ public abstract class TheBigCache implements Cache{
 		this.assosciativity = m;
 	}
 
-	public String Read(int wordAddress){
+	public String Read(int wordAddress) throws IndexOutOfMemoryBoundsException{
+		// Loop through all levels of cache till we find the word is found
 		for (int i = 0; i < hier.size(); i++) 
-		{
-			
-			// Loop through all levels of cache till we find the word is found
-			 
+		{			 
 			if(hier.get(i).Read(wordAddress)!= null)
 			{
 				// adding required word address to levels of cache that didnot 
 				// contain the word.
-				for(int k=0; k<i; k++)
+				// when I add the required address to the cache I need to check
+				// before removing blocks if they are write back, then I need to 
+				// copy the data contained in them to the lower levels till I hit 
+				// a write through cache
+				
+				for(int k=0; k<i; k++){
+					if(hier.get(k).WriteBack){
+						// put the data in the removed cache to lower levels
+						// I will keep in going to lower levels until I reach
+						// a write through level
+						boolean stop = false;
+						for(int j=k; j<i && !stop;j++)
+						{
+							
+						}
+					}
 					hier.get(k).addToCache(wordAddress);
+				}
 				return hier.get(i).Read(wordAddress);
 			}
 				
@@ -47,15 +64,26 @@ public abstract class TheBigCache implements Cache{
 	// because the size of blocks is different from level to level.
 	
 	
-	public boolean Write(int wordAddress, String data) {
+	public boolean Write(int wordAddress, String data) throws IndexOutOfMemoryBoundsException {
 		
 		for (int i = 0; i < hier.size(); i++) {
 			if(hier.get(i).Write(wordAddress, data))
 			{
-				if(!hier.get(i).WriteBack)
-				{
-					MainMemory.RAM.put(Integer.toBinaryString(wordAddress), data);
-				}
+				// add data to lower levels to ensure consistency
+				// add updated blocks to upper levels that did not contain the block
+				for(int k =i+1; k < hier.size(); k++)
+					hier.get(i).Write(wordAddress, data);
+				// copy data to upper levels that didnot contain the data
+				for(int j = i-1; j >= 0; j--)
+					hier.get(j).addToCache(wordAddress, data);
+					
+				//if(!hier.get(i).WriteBack)
+				//{
+					//MainMemory.RAM.put(Integer.toBinaryString(wordAddress), data);
+				//}
+				// need to loop over all levels copying the new data
+				
+				
 				return true;
 			}
 		}
@@ -72,16 +100,23 @@ public abstract class TheBigCache implements Cache{
 	}
 	
 
-	void addToCache(int wordAddress,String data)
+	void addToCache(int wordAddress,String data) throws IndexOutOfMemoryBoundsException
 	{
 		for(int i=0; i<hier.size(); i++)
 			hier.get(i).addToCache(wordAddress,data);
 	}
 	
-	void addToCache(int wordAddress)
+	void addToCache(int wordAddress) throws IndexOutOfMemoryBoundsException
 	{
+		// I need to check when I remove data if this is a write back then
+		// 
 		for(int i=0; i<hier.size(); i++)
 			hier.get(i).addToCache(wordAddress);
+	}
+	
+	double getHitRatio()
+	{
+		return (numberOfAccesses - numberOfMisses)/numberOfAccesses;
 	}
 	
 }
