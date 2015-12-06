@@ -22,8 +22,11 @@ public class Main {
 	static ArrayList<Stage>[] TheBigTable;
 	static boolean first = true;
 	static boolean CanWrite = true;
-
-	// static Queue WriteQueu = new Queue();
+	static Queue WriteQueu = new Queue();
+	static Queue LoadStore = new Queue();
+	static int NrOfBranches=0;
+	static int NrOfBranchesMispredicted=0;
+	static int cycle;
 
 	// static Queue ROBTable;
 	public Main() {
@@ -99,6 +102,9 @@ public class Main {
 				|| ProgramCode[CurrentInstruction].Name.equals("LW")
 				|| ProgramCode[CurrentInstruction].Name.equals("SW")
 				|| ProgramCode[CurrentInstruction].Name.equals("ADDI")) {
+			
+			if(ProgramCode[CurrentInstruction].Name.equals("BEQ")) //Awel ma ygeeli branch increment to get the total nr of branches in code.
+				NrOfBranches++;
 			int freeReservationStation = findFreeReservationStation(ProgramCode[CurrentInstruction].Name);
 
 			ReservationStations[freeReservationStation].imm = ProgramCode[CurrentInstruction].immediateValue;
@@ -328,8 +334,8 @@ public class Main {
 					// cI= pcbefroe branch - imm +1
 
 					ROB = new ROBEntry[ROBSize]; // flush rob
-					RegisterStatus = new int[NumberOfRegisters]; // clear reg.
-																	// status
+					RegisterStatus = new int[NumberOfRegisters]; // clear reg.status
+					NrOfBranchesMispredicted ++; //The number of times we flush the ROB indicates the number of times it was a mispredicton
 				}
 			}
 
@@ -339,12 +345,14 @@ public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
 
-		while (true) {
+		for (int i = 1; i <= cycle; i++) {
 			Fetch();
 			Issue();
 			Execute();
 			WriteBack();
 			// cycles++;
 		}
+			
+		int TotatlMisprediction = NrOfBranchesMispredicted/NrOfBranches;
 	}
 }
