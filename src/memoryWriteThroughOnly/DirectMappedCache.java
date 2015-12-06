@@ -102,6 +102,8 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		this.numberOfMisses++;
 		return null;
 	}
+	
+	
 
 	// The user changes the data at one address only
 	// Find the address in cache update the data.

@@ -1,10 +1,10 @@
-package memoryWriteThroughOnly;
+package memory;
 
-import memoryWriteThroughOnly.Cache;
-import memoryWriteThroughOnly.CacheLine;
-import memoryWriteThroughOnly.IndexOutOfMemoryBoundsException;
-import memoryWriteThroughOnly.MainMemory;
-import memoryWriteThroughOnly.TheBigCache;
+import memory.Cache;
+import memory.CacheLine;
+import memory.IndexOutOfMemoryBoundsException;
+import memory.MainMemory;
+import memory.TheBigCache;
 
 public class SetAssociative extends TheBigCache implements Cache {
 	// final int MemSize = 65536;

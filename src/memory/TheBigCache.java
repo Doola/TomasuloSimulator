@@ -22,6 +22,11 @@ public class TheBigCache implements Cache{
 		this.assosciativity = m;
 	}
 
+	
+	public void writeBlock(int wordAddress, String[] data)
+	{
+		
+	}
 	public String Read(int wordAddress) throws IndexOutOfMemoryBoundsException{
 		// Loop through all levels of cache till we find the word is found
 		for (int i = 0; i < hier.size(); i++) 
@@ -71,8 +76,14 @@ public class TheBigCache implements Cache{
 			{
 				// add data to lower levels to ensure consistency
 				// add updated blocks to upper levels that did not contain the block
-				for(int k =i+1; k < hier.size(); k++)
-					hier.get(i).Write(wordAddress, data);
+				// if this level is writeBack stop
+				// if write through
+				boolean stop = false;
+				for(int k =i+1; k < hier.size() && !stop; k++){
+					if(hier.get(k).WriteBack)
+						stop = true;
+					hier.get(k).Write(wordAddress, data);
+				}
 				// copy data to upper levels that didnot contain the data
 				for(int j = i-1; j >= 0; j--)
 					hier.get(j).addToCache(wordAddress, data);

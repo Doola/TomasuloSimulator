@@ -1,5 +1,7 @@
 package memory;
 
+import memory.CacheLine;
+
 public class DirectMappedCache extends TheBigCache implements Cache {
 
 	// array of data type cache lines, representing individal lines in the cache
@@ -16,6 +18,9 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		this.lengthOffset = (int) (Math.log(l/16) / Math.log(2));
 		this.lengthTag = 16 - lengthIndex - lengthOffset;
 		lines = new CacheLine[s / l];
+		for (int i = 0; i < lines.length; i++) {
+			lines[i] = new CacheLine(null, "");
+		}
 		this.DirtyBit = new boolean[s / l];
 		hier.add(this);
 		this.numberOfAccesses = 0.0;
@@ -28,9 +33,12 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		// must check for write back and dirty bit
 		// if the line's valid bit is false then skip all steps and just add it
 		String word = Integer.toBinaryString(wordAddress);
-		String tagBinary = word.substring(lengthTag);
-		String indexBinary = word.substring(lengthTag, lengthTag + lengthIndex);
-		String offsetBinary = word.substring(lengthTag + lengthIndex, 16);
+		for (int i = word.length(); i <= 16; i++) {
+			word = "0" + word;
+		}
+		String tagBinary = word.substring(0, lengthTag+1);
+		String indexBinary = word.substring(lengthTag+1, lengthTag + lengthIndex +1);
+		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 		int index = Integer.parseInt(indexBinary, 2);
 
 		// If the index is invalid then we can fetch data from memory and
@@ -44,25 +52,36 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 						// loop over lower levels till I reach WriteBack again and stop
 						// if I am the last level then insert in memory
 						
+						
 						if(this.equals(hier.getLast())){
 							String memAddress = lines[index].Tag
-									+ Integer.toBinaryString(index);
+									+ indexBinary;
 
 							// adding zeroes to adjust for missing offset bits in
 							// extracted address
 							// this gives us the address of the start of block for
 							// this specific cache
 							for (int i = 0; i < this.lengthOffset; i++)
-								memAddress += "0";
+								memAddress = memAddress + "0";
 							MainMemory.Insert(memAddress, lines[index].Data,
 									this.BlockSize);
 						} else {
 							// copy data to lower levels until we reach a writeBack level
 							boolean stop = false;
 							String AddressToReplace = "";
-							String data = lines[index].Data[Integer.parseInt(offsetBinary,2)];
+							String binaryIndex = "";
+							
+							AddressToReplace = lines[index].Tag + indexBinary;
+							while(AddressToReplace.length() < 16)
+							{
+								AddressToReplace =  AddressToReplace + "0";
+							}
+							String[] block =  lines[index].Data;
+							
 							DirectMappedCache temp ;
-							for(int i=hier.indexOf(this); i<hier.size(); i++){
+							
+							for(int i=hier.indexOf(this)+1; i<hier.size() && !stop; i++){
+								
 								// fetch the address from the block and write on this address at lowers levels
 								if(hier.get(i).WriteBack){
 									stop = true;
@@ -73,9 +92,10 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 								// add address to index
 								
 								// pass index to start and da
-								AddressToReplace = 
-								hier.get(i).WriteData(AddressToBeReplacedInAboveLevel, data);
-								// I need to type cast and call the WriteNew method
+								
+								// get the address that i will replace
+										
+								hier.get(i).writeBlock(Integer.parseInt(AddressToReplace,2), block);
 							}
 						}
 						
@@ -102,26 +122,78 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 
 	void addToCache(int wordAddress, String data) throws IndexOutOfMemoryBoundsException {
 		String word = Integer.toBinaryString(wordAddress);
-		String tagBinary = word.substring(lengthTag);
-		String indexBinary = word.substring(lengthTag, lengthTag + lengthIndex);
-		String offsetBinary = word.substring(lengthTag + lengthIndex, 16);
+		for (int i = word.length(); i <= 16; i++) {
+			word = "0" + word;
+		}
+		String tagBinary = word.substring(0, lengthTag+1);
+		String indexBinary = word.substring(lengthTag+1, lengthTag + lengthIndex +1);
+		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 		int index = Integer.parseInt(indexBinary, 2);
+		// If i am removing a line from write back and it has a dirty bit
+		// then I need to move to lower levels writing till I reach an other write Back
+		// or the memory
 		if (lines[index].ValidBit) {
 			if (this.WriteBack && DirtyBit[index])
 				try {
 					{
-						String memAddress = lines[index].Tag
-								+ Integer.toBinaryString(index);
-						for (int i = 0; i < this.lengthOffset; i++)
-							memAddress += "0";
-						MainMemory
-								.Insert(memAddress, lines[index].Data, this.BlockSize);
+						// loop over lower levels till I reach WriteBack again and stop
+						// if I am the last level then insert in memory
+						
+						
+						if(this.equals(hier.getLast())){
+							String memAddress = lines[index].Tag
+									+ indexBinary;
+
+							// adding zeroes to adjust for missing offset bits in
+							// extracted address
+							// this gives us the address of the start of block for
+							// this specific cache
+							for (int i = 0; i < this.lengthOffset; i++)
+								memAddress = memAddress + "0";
+							MainMemory.Insert(memAddress, lines[index].Data,
+									this.BlockSize);
+						} else {
+							// copy data to lower levels until we reach a writeBack level
+							boolean stop = false;
+							String AddressToReplace = "";
+							String binaryIndex = "";
+							
+							AddressToReplace = lines[index].Tag + indexBinary;
+							while(AddressToReplace.length() < 16)
+							{
+								AddressToReplace =  AddressToReplace + "0";
+							}
+							String[] block =  lines[index].Data;
+							
+							DirectMappedCache temp ;
+							
+							for(int i=hier.indexOf(this)+1; i<hier.size() && !stop; i++){
+								
+								// fetch the address from the block and write on this address at lowers levels
+								if(hier.get(i).WriteBack){
+									stop = true;
+								}
+								// write in the addresses considering the fact that they might be in different 
+								// indexes due to difference in block size
+								// new write method which writes the whole data array since same block size.
+								// add address to index
+								
+								// pass index to start and da
+								
+								// get the address that i will replace
+										
+								hier.get(i).writeBlock(Integer.parseInt(AddressToReplace,2), block);
+							}
+						}
+						
 					}
+					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}
+		
 		int blockOffset = Integer.parseInt(offsetBinary, 2);
 		String[] newData = MainMemory.Read(wordAddress - blockOffset,
 				this.BlockSize);
@@ -135,15 +207,12 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		// Converting wordAddress to binary and extracting
 		// tag, index and offset.
 		String word = Integer.toBinaryString(wordAddress);
-		if (word.length() < 16) {
-			for (int i = word.length(); i <= 16; i++) {
-				word = "0" + word;
-			}
-
+		for (int i = word.length(); i <= 16; i++) {
+			word = "0" + word;
 		}
-		String tagBinary = word.substring(lengthTag);
-		String indexBinary = word.substring(lengthTag, lengthTag + lengthIndex);
-		String offsetBinary = word.substring(lengthTag + lengthIndex, 16);
+		String tagBinary = word.substring(0, lengthTag);
+		String indexBinary = word.substring(lengthTag+1, lengthTag + lengthIndex +1);
+		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 		int index = Integer.parseInt(indexBinary, 2);
 
 		// If the line is not valid then nothing was ever written in it.
@@ -167,12 +236,15 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 	// if write through then we must copy to all other levels.
 	public boolean Write(int wordAddress, String data) {
 		// Converting wordAddress to binary and extracting
-		// tag, index and offset.
-		String word = Integer.toBinaryString(wordAddress);
-		String tagBinary = word.substring(lengthTag);
-		String indexBinary = word.substring(lengthTag, lengthTag + lengthIndex);
-		String offsetBinary = word.substring(lengthTag + lengthIndex, 16);
-		int index = Integer.parseInt(indexBinary, 2);
+				// tag, index and offset.
+				String word = Integer.toBinaryString(wordAddress);
+				for (int i = word.length(); i <= 16; i++) {
+					word = "0" + word;
+				}
+				String tagBinary = word.substring(0, lengthTag);
+				String indexBinary = word.substring(lengthTag+1, lengthTag + lengthIndex +1);
+				String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
+				int index = Integer.parseInt(indexBinary, 2);
 
 		// If the line is not valid then nothing was ever written in it.
 		// Compare the tag of word address with tag in line, If equal then
@@ -191,15 +263,18 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		return false;
 	}
 	
-	public void WriteData(int wordAddress, String[] data){
-		// Converting wordAddress to binary and extracting
-		// tag, index and offset.
+	
+	public void writeBlock(int wordAddress, String[] data)
+	{
 		String word = Integer.toBinaryString(wordAddress);
-		String tagBinary = word.substring(lengthTag);
-		String indexBinary = word.substring(lengthTag, lengthTag + lengthIndex);
-		String offsetBinary = word.substring(lengthTag + lengthIndex, 16);
+		for (int i = word.length(); i <= 16; i++) {
+			word = "0" + word;
+		}
+		String tagBinary = word.substring(0, lengthTag+1);
+		String indexBinary = word.substring(lengthTag+1, lengthTag + lengthIndex +1);
+		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 		int index = Integer.parseInt(indexBinary, 2);
-		// replace the data with edited data
+		
 		lines[index].Data = data;
 	}
 }
