@@ -13,7 +13,7 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		l *= 16;
 		this.lengthIndex = (int) (Math.log(s / l) / Math.log(2));
 		// this assumes that we are always word addressable
-		this.lengthOffset = (int) (Math.log(l) / Math.log(2));
+		this.lengthOffset = (int) (Math.log(l/16) / Math.log(2));
 		this.lengthTag = 16 - lengthIndex - lengthOffset;
 		lines = new CacheLine[s / l];
 		this.DirtyBit = new boolean[s / l];
@@ -59,9 +59,23 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 						} else {
 							// copy data to lower levels until we reach a writeBack level
 							boolean stop = false;
+							String AddressToReplace = "";
 							String data = lines[index].Data[Integer.parseInt(offsetBinary,2)];
+							DirectMappedCache temp ;
 							for(int i=hier.indexOf(this); i<hier.size(); i++){
 								// fetch the address from the block and write on this address at lowers levels
+								if(hier.get(i).WriteBack){
+									stop = true;
+								}
+								// write in the addresses considering the fact that they might be in different 
+								// indexes due to difference in block size
+								// new write method which writes the whole data array since same block size.
+								// add address to index
+								
+								// pass index to start and da
+								AddressToReplace = 
+								hier.get(i).WriteData(AddressToBeReplacedInAboveLevel, data);
+								// I need to type cast and call the WriteNew method
 							}
 						}
 						
@@ -121,6 +135,12 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		// Converting wordAddress to binary and extracting
 		// tag, index and offset.
 		String word = Integer.toBinaryString(wordAddress);
+		if (word.length() < 16) {
+			for (int i = word.length(); i <= 16; i++) {
+				word = "0" + word;
+			}
+
+		}
 		String tagBinary = word.substring(lengthTag);
 		String indexBinary = word.substring(lengthTag, lengthTag + lengthIndex);
 		String offsetBinary = word.substring(lengthTag + lengthIndex, 16);
@@ -170,5 +190,16 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		}
 		return false;
 	}
-
+	
+	public void WriteData(int wordAddress, String[] data){
+		// Converting wordAddress to binary and extracting
+		// tag, index and offset.
+		String word = Integer.toBinaryString(wordAddress);
+		String tagBinary = word.substring(lengthTag);
+		String indexBinary = word.substring(lengthTag, lengthTag + lengthIndex);
+		String offsetBinary = word.substring(lengthTag + lengthIndex, 16);
+		int index = Integer.parseInt(indexBinary, 2);
+		// replace the data with edited data
+		lines[index].Data = data;
+	}
 }

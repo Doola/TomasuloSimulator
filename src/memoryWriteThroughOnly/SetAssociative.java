@@ -53,7 +53,7 @@ public class SetAssociative extends TheBigCache implements Cache {
 			String[] data = MainMemory.Read(wordAddress - blockOffset,
 					this.BlockSize);
 			CacheLine temp = new CacheLine(data, tagBinary);
-			this.cache[index/setSize].Lines[index%setSize] = temp;
+			this.cache[index/setSize].Lines[(int)Math.random()*setSize+1] = temp;
 		}
 
 		void addToCache(int wordAddress, String data) throws IndexOutOfMemoryBoundsException {
@@ -70,7 +70,7 @@ public class SetAssociative extends TheBigCache implements Cache {
 					this.BlockSize);
 			newData[Integer.parseInt(offsetBinary, 2)] = data;
 			CacheLine temp = new CacheLine(newData, tagBinary);
-			this.cache[index/setSize].Lines[index%setSize] = temp;
+			this.cache[index/setSize].Lines[(int)Math.random()*setSize+1] = temp;
 		}
 
 		@Override
