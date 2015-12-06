@@ -21,10 +21,9 @@ public class Main {
 	static int CurrentInstruction = 0;
 	static ArrayList<Stage>[] TheBigTable;
 	static boolean first = true;
-	static boolean CanWrite =true;
-	static int PCBeforeBranch=0;
-	//static Queue WriteQueu = new Queue();
-	
+	static boolean CanWrite = true;
+
+	// static Queue WriteQueu = new Queue();
 
 	// static Queue ROBTable;
 	public Main() {
@@ -32,7 +31,7 @@ public class Main {
 			RegisterFile[i] = new Register(RegisterName.valueOf("R" + i), "");
 		}
 		RegisterFile[0] = new Register(RegisterName.valueOf("R0"), "0");
-		
+
 	}
 
 	public static void Intialise() {
@@ -40,8 +39,7 @@ public class Main {
 		TheBigTable = (ArrayList<Stage>[]) new ArrayList[NumberOfInstructions];
 	}
 
-	public static boolean FunctionalUnitNameToInstructionName(
-			InstructionName a, FunctionalUnitName b) {
+	public static boolean FunctionalUnitNameToInstructionName(InstructionName a, FunctionalUnitName b) {
 		// check the rest of the instructions
 		// **************************************
 		// **************************************
@@ -72,8 +70,7 @@ public class Main {
 
 	public static int findFreeReservationStation(InstructionName a) {
 		for (int i = 0; i < ReservationStations.length; i++) {
-			if (FunctionalUnitNameToInstructionName(a,
-					ReservationStations[i].name)) {
+			if (FunctionalUnitNameToInstructionName(a, ReservationStations[i].name)) {
 				return i;
 			}
 		}
@@ -92,238 +89,262 @@ public class Main {
 
 	public static void Fetch() {
 		// get instruction from cache
-		//CurrentInstruction++;
+		// CurrentInstruction++;
 	}
 
 	public static void Issue() {
-		
+
 		// if beq and bne then instruction name is ADD
-		if(ProgramCode[CurrentInstruction].Name.equals("BEQ") || ProgramCode[CurrentInstruction].Name.equals("JMP")|| (ProgramCode[CurrentInstruction].Name.equals("LW")||(ProgramCode[CurrentInstruction].Name.equals("SW")||(ProgramCode[CurrentInstruction].Name.equals("ADDI") )
-		{
-			
+		if (ProgramCode[CurrentInstruction].Name.equals("BEQ") || ProgramCode[CurrentInstruction].Name.equals("JMP")
+				|| ProgramCode[CurrentInstruction].Name.equals("LW")
+				|| ProgramCode[CurrentInstruction].Name.equals("SW")
+				|| ProgramCode[CurrentInstruction].Name.equals("ADDI")) {
+			int freeReservationStation = findFreeReservationStation(ProgramCode[CurrentInstruction].Name);
+
 			ReservationStations[freeReservationStation].imm = ProgramCode[CurrentInstruction].immediateValue;
 		}
-		
+
 		int freeReservationStation = findFreeReservationStation(ProgramCode[CurrentInstruction].Name);
-		
-	
-		if ((!ReservationStations[freeReservationStation].busy && head != tail)
-				|| first) 
-		{
+
+		// If this reservation station is not busy insert instruction in it's
+		// correct FU.
+		if ((!ReservationStations[freeReservationStation].busy && head != tail) || first) {
 			first = false;
 			ReservationStations[freeReservationStation].busy = true;
-			
+
 			ReservationStations[freeReservationStation].operation = ProgramCode[CurrentInstruction].Name;
-			
+
 			ReservationStations[freeReservationStation].destination = tail;
-			// add conditions for load and store
-			// *********************************
-			// *********************************
-			// *********************************
-			// *********************************
-			// *********************************
-			// *********************************
-			
-			if (FreeRegisterStatus(ProgramCode[CurrentInstruction].Rs)) {
+	
+			if ( !ProgramCode[CurrentInstruction].Name.toString().equals("RET") && !(ProgramCode[CurrentInstruction].Name.toString().equals("JMP")))
+			{
+				if (FreeRegisterStatus(ProgramCode[CurrentInstruction].Rs)) {
 				ReservationStations[freeReservationStation].Vi.Name = ProgramCode[CurrentInstruction].Rs;
-			} else {
-				String s = ProgramCode[CurrentInstruction].Rs.toString()
-						.substring(1);
+				} else {
+				String s = ProgramCode[CurrentInstruction].Rs.toString().substring(1);
 				int registerIndex = Integer.parseInt(s);
 				ReservationStations[freeReservationStation].Qi = RegisterStatus[registerIndex];
+				}
 			}
-			if (FreeRegisterStatus(ProgramCode[CurrentInstruction].Rd)) {
-				ReservationStations[freeReservationStation].Vj.Name = ProgramCode[CurrentInstruction].Rd;
-			} else {
-				String s = ProgramCode[CurrentInstruction].Rd.toString()
-						.substring(1);
-				int registerIndex = Integer.parseInt(s);
-				ReservationStations[freeReservationStation].Qj = RegisterStatus[registerIndex];
-			}
-			
-			if(ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
+			////
+			if (ProgramCode[CurrentInstruction].Name.toString().equals("ADD")
+					|| ProgramCode[CurrentInstruction].Name.toString().equals("MUL")
+					|| ProgramCode[CurrentInstruction].Name.toString().equals("SUB")
+					|| ProgramCode[CurrentInstruction].Name.toString().equals("NAND"))
 			{
-				ReservationStations[freeReservationStation].Address=ProgramCode[CurrentInstruction].immediateValue;
+				
+				if (FreeRegisterStatus(ProgramCode[CurrentInstruction].Rt)) {
+					ReservationStations[freeReservationStation].Vj.Name = ProgramCode[CurrentInstruction].Rt;
+				} else {
+					String s = ProgramCode[CurrentInstruction].Rt.toString().substring(1);
+					int registerIndex = Integer.parseInt(s);
+					ReservationStations[freeReservationStation].Qj = RegisterStatus[registerIndex];
+				}
+				
 			}
-			
-			if(ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
-				ROB[tail].type = ROBType.SD;
-			else if (ProgramCode[CurrentInstruction].Name.toString().equals("LW"))
+			ROB[tail].Destination.Name = ProgramCode[CurrentInstruction].Rd;
+			/////////
+			if (ProgramCode[CurrentInstruction].Name.toString().equals("LW"))
 				ROB[tail].type = ROBType.LD;
+			else if (ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
+				ROB[tail].type = ROBType.SD;
 			else
 				ROB[tail].type = ROBType.INT;
+			////////////
+
+			if (ProgramCode[CurrentInstruction].Name.toString().equals("LW")
+					|| ProgramCode[CurrentInstruction].Name.toString().equals("SW")) {
+
+				ReservationStations[freeReservationStation].Address = ProgramCode[CurrentInstruction].immediateValue;
+			}
+
 			
-			ROB[tail].Destination.Name = ProgramCode[CurrentInstruction].Rd;
-			tail++;
+
 			CurrentInstruction++;
-			
-			//BRAAAAANCH!!!!!!!!!!!!!!!!!!!
-			///if its a beq,bne then if imm>0 pc+1 else if imm<0 pc +imm
-			if((ProgramCode[CurrentInstruction].Name.equals("BEQ") || ProgramCode[CurrentInstruction].Name.equals("BNE")) ){
-				if(ProgramCode[CurrentInstruction].immediateValue<0){
-					//currentInsr. was incremented before the if condition
-					PCBeforeBranch=CurrentInstruction-1;
+
+			// BRAAAAANCH!!!!!!!!!!!!!!!!!!!
+			/// if its a beq,bne then if imm>0 pc+1 else if imm<0 pc +imm
+			if ((ProgramCode[CurrentInstruction].Name.equals("BEQ")
+					|| ProgramCode[CurrentInstruction].Name.equals("BNE"))) {
+				if (ProgramCode[CurrentInstruction].immediateValue < 0) {
+					// currentInsr. was incremented before the if condition
+					ROB[tail].PCBeforeBranch = CurrentInstruction - 1;
 					ROB[tail].taken = true;
-					CurrentInstruction+=ProgramCode[CurrentInstruction].immediateValue-1; 
-				}
-				else
+					CurrentInstruction += ProgramCode[CurrentInstruction].immediateValue - 1;
+				} else
 					ROB[tail].taken = false;
 			}
-			
-			//BRAAAAANCH!!!!!!!!!!!!!!!!!!!
-			
+
+			// BRAAAAANCH!!!!!!!!!!!!!!!!!!!
+
 			// check if tail reached the end of table
+			tail++;
 			if (tail > ROBSize)
 				tail = 1;
-		} 
+		}
 	}
-	//Called in execute to do the actual operation
-	public static String CalculateValue(FunctionalUnit fu){
-		switch (fu.operation){
-		case LW:
-			//get from memory
-			break;
-		case SW:
-			//insert in memory
-			break;
+
+	// Called in execute to do the actual operation
+	public static String CalculateValue(FunctionalUnit fu) {
+		switch (fu.operation) {
+
 		case JMP:
-			
-			break;
-		case BEQ: 
-			if(Integer.parseInt(fu.Vi.Value)-Integer.parseInt(fu.Vj.Value)==0)
-			{
-				if(!ROB[fu.destination].taken)
-				{
-					ROB[fu.destination].WrongPrediction=true;		
-					// wrong prediction , set rob flag false 
-				}
-				else
-					ROB[fu.destination].WrongPrediction=false;	
-					
+			return Integer.parseInt(ROB[fu.destination].Destination.Value) + fu.imm + 1 + CurrentInstruction + "";
+		case JALR:
+			fu.Vj.Value = CurrentInstruction + 1 + "";
+			return Integer.parseInt(fu.Vi.Value) + "";
+
+		case RET:
+			return Integer.parseInt(ROB[fu.destination].Destination.Value) + "";
+
+		case BEQ:
+			if (Integer.parseInt(fu.Vi.Value) - Integer.parseInt(ROB[fu.destination].Destination.Value) == 0) {
+				if (!ROB[fu.destination].taken) {
+					ROB[fu.destination].WrongPrediction = true;
+					// wrong prediction , set rob flag false
+				} else
+					ROB[fu.destination].WrongPrediction = false;
+
 			}
 			break;
-		case JALR: 
-			break;
-		case RET: 
-			break;
-		case ADD: 
-			return Integer.parseInt(fu.Vi.Value)+Integer.parseInt(fu.Vj.Value)+""; 
-		case SUB: 
-			return Integer.parseInt(fu.Vi.Value)-Integer.parseInt(fu.Vj.Value)+""; 
-		case ADDI: 
-			return Integer.parseInt(fu.Vi.Value)+fu.imm+"";
-		case NAND: 
-			return ~(Integer.parseInt(fu.Vi.Value) & Integer.parseInt(fu.Vj.Value))+"" ;
-		case MUL: 
-			return Integer.parseInt(fu.Vi.Value)*Integer.parseInt(fu.Vj.Value)+"";
+		case ADD:
+			return Integer.parseInt(fu.Vi.Value) + Integer.parseInt(fu.Vj.Value) + "";
+		case SUB:
+			return Integer.parseInt(fu.Vi.Value) - Integer.parseInt(fu.Vj.Value) + "";
+		case ADDI:
+			return Integer.parseInt(fu.Vi.Value) + fu.imm + "";
+		case NAND:
+			return ~(Integer.parseInt(fu.Vi.Value) & Integer.parseInt(fu.Vj.Value)) + "";
+		case MUL:
+			return Integer.parseInt(fu.Vi.Value) * Integer.parseInt(fu.Vj.Value) + "";
 		}
 		return null;
 	}
-	
-	public static void Execute() 
-	{
+
+	public static void Execute() {
 		// loop over all functions in RS and execute them if operands are ready
 		// execute: calculate the number of cycles need to finish execution/
 		// add to write array
-		// actaully execute
-		for (int i = 0; i < ReservationStations.length; i++)
-		{
-			if(ReservationStations[i].Qi ==0 && ReservationStations[i].Qj==0 && ReservationStations[i].cyclesRemaining >= 0)
-				
-			{
-				//Execute the instruction then
-				
-				if(ReservationStations[i].cyclesRemaining == 0)
-				{
-				   ReservationStations[i].value=CalculateValue(ReservationStations[i]); //done call func calculate value (check load store in lec 14)
-				   // put the whole reservation station in a queue
-				   WriteQueu.enqueue(ReservationStations[i]);
-				 
+		// Actually execute
+		for (int i = 0; i < ReservationStations.length; i++) {
+			if (ReservationStations[i].Qi == 0 && ReservationStations[i].Qj == 0
+					&& ReservationStations[i].cyclesRemaining >= 0) {
+				// Execute the instruction then
+				if (ReservationStations[i].cyclesRemaining == 0) {
+					if (ReservationStations[i].operation.equals("SW")) {
+						if (ReservationStations[i].Qi == 0) {
+							//////////
+							ROB[ReservationStations[i].destination].Destination.Value = ReservationStations[i].Address
+									+ ReservationStations[i].Vi.Value;
+
+						}
+					} else if (ReservationStations[i].operation.equals("LW")) {
+						if (ReservationStations[i].Qi == 0 /* && no stores */) {
+							// calculate value
+
+							ReservationStations[i].Address = ReservationStations[i].Address
+									+ Integer.parseInt(ReservationStations[i].Vi.Value);
+							// check all stores have ROB have diff address
+							// read from Memory
+							// MEM[ReservationStations[i].Address] DOOLA and
+							// store in rd
+						}
+					} else if (ReservationStations[i].operation.equals("JMP")
+							|| ReservationStations[i].operation.equals("JALR")
+							|| ReservationStations[i].operation.equals("RET")) {
+						CurrentInstruction = Integer.parseInt(CalculateValue(ReservationStations[i]));
+					}
+
+					else
+						ReservationStations[i].value = CalculateValue(ReservationStations[i]);
+
+					// put the whole reservation station in a queue
+					WriteQueu.enqueue(ReservationStations[i]);
+
 				}
-				
-				ReservationStations[i].cyclesRemaining --;
+
+				ReservationStations[i].cyclesRemaining--;
 			}
 		}
 	}
 
 	public static void WriteBack() throws InterruptedException {
-		// the conditions i need are can write and loop over fu that should write bs
-		
-		if(!WriteQueu.isEmpty()){
-			 FunctionalUnit temp = (FunctionalUnit)WriteQueu.dequeue(); // check if errors ,yasser:D
-			if(temp.cyclesRemaining == -1 && CanWrite)
-			{
+		// the conditions i need are can write and loop over fu that should
+		// write bs
+
+		if (!WriteQueu.isEmpty()) {
+			FunctionalUnit temp = (FunctionalUnit) WriteQueu.dequeue(); // check
+																		// if
+																		// errors
+																		// ,yasser:D
+
+			if (temp.cyclesRemaining == -1 && CanWrite) {
 				CanWrite = !CanWrite;
 				ROB[temp.destination].Value = temp.value;
-				//if store
-				if(temp.name.equals("STORE") && temp.Qj == 0)
+				// if store
+				if (temp.name.equals("STORE") && temp.Qj == 0)
 					ROB[temp.destination].Value = temp.Vi.Name.toString();
-				ROB[temp.destination].Ready =true;
-			
+				ROB[temp.destination].Ready = true;
+
 				String s = ROB[temp.destination].Destination.Name.toString().substring(1);
 				int registerIndex = Integer.parseInt(s);
-				for (int k = 0; k < ReservationStations.length; k++)
-				{
-					if(ReservationStations[k].Qi == RegisterStatus[registerIndex])
-						ReservationStations[k].Qi =0;
-					
-					if(ReservationStations[k].Qj == RegisterStatus[registerIndex])
-						ReservationStations[k].Qj =0;
+				for (int k = 0; k < ReservationStations.length; k++) {
+					if (ReservationStations[k].Qi == RegisterStatus[registerIndex])
+						ReservationStations[k].Qi = 0;
+
+					if (ReservationStations[k].Qj == RegisterStatus[registerIndex])
+						ReservationStations[k].Qj = 0;
 				}
-				
-				temp.busy=false;
-				
+
+				temp.busy = false;
+
 			}
 		}
-		
+
 	}
 
-	public static void Commit() 
-	{
-		//wrong prediction 
-		for (int i = 0; i < ROB.length; i++) 
-		{
-			if(ROB[i].Ready && head==i)
-			{
-				if(!ROB[i].WrongPrediction)
-				{
-				// save value in Memory/REG then (cahce)
-				// if store , Des= address, in memory ,Mem[rob.Dest]=value
-				//all operations save rob[i].value in dest register/memory in cache
-				ROB[i].Ready = false;
-				RegisterStatus[registerIndex]=0;
-				head ++;
-				if(head>ROB.length)
-					head=1;
-				}
-				else
-				{
-					if(ROB[i].taken)
-						//cI=pcbeforebranch++
-						CurrentInstruction = PCBeforeBranch ++;
+	public static void Commit() {
+		// wrong prediction
+		for (int i = 0; i < ROB.length; i++) {
+			if (ROB[i].Ready && head == i) {
+				if (!ROB[i].WrongPrediction) {
+					// save value in Memory/REG then (cahce)
+					// if store , Des= address, in memory ,Mem[rob.Dest]=value
+					// all operations save rob[i].value in dest register/memory
+					// in caches
+					ROB[i].Ready = false;
+					String s = ROB[i].Destination.toString().substring(1);
+					int registerIndex = Integer.parseInt(s);
+					RegisterStatus[registerIndex] = 0;
+					head++;
+					if (head > ROB.length)
+						head = 1;
+				} else {
+					if (ROB[i].taken)
+						// cI=pcbeforebranch++
+						CurrentInstruction = ROB[i].PCBeforeBranch++;
 					else
-						CurrentInstruction = PCBeforeBranch -ProgramCode[PCBeforeBranch].immediateValue+1;
-						// cI= pcbefroe branch - imm +1
-						
+						CurrentInstruction = ROB[i].PCBeforeBranch - ProgramCode[ROB[i].PCBeforeBranch].immediateValue + 1;
+					// cI= pcbefroe branch - imm +1
+
 					ROB = new ROBEntry[ROBSize]; // flush rob
-					RegisterStatus = new int[NumberOfRegisters]; // clear reg. status
+					RegisterStatus = new int[NumberOfRegisters]; // clear reg.
+																	// status
 				}
 			}
-			
+
 		}
-		
+
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		
-		while(true
-				)
-		{
+
+		while (true) {
 			Fetch();
 			Issue();
 			Execute();
 			WriteBack();
-//			cycles++;
+			// cycles++;
 		}
 	}
 }
