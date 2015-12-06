@@ -55,6 +55,7 @@ public class StartCache {
 		memory.RAM.put(add18, "ya Doola3");
 		memory.RAM.put(add19, "el3");
 		memory.RAM.put(add20, "tary3");
+		memory.RAM.put("0000000000000000", "Oh yeah !!!");
 		
 		
 		TheBigCache cache = new TheBigCache(s,l,1);
@@ -66,7 +67,7 @@ public class StartCache {
 		cache.hier.add(c);
 		
 		
-		//CacheLine temp = new CacheLine(new String[]{"yaaay","read","works"}, "000000");
+		CacheLine temp = new CacheLine(new String[]{"yaaay","read","works"}, "000000");
 		//a.lines[0] = temp;
 		//c.lines[0] = temp;
 
