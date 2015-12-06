@@ -8,6 +8,8 @@ public class ROBEntry
 	Boolean Ready;
 	Enum<ROBType> type;
 	int index ;
+	boolean WrongPrediction;
+	boolean taken;
 	
 	public ROBEntry(Register Destination, String Value, Boolean Ready, Enum<ROBType> type)
 	{

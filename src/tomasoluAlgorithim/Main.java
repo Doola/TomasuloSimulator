@@ -22,6 +22,7 @@ public class Main {
 	static ArrayList<Stage>[] TheBigTable;
 	static boolean first = true;
 	static boolean CanWrite =true;
+	static int PCBeforeBranch=0;
 	//static Queue WriteQueu = new Queue();
 	
 
@@ -54,9 +55,17 @@ public class Main {
 			return true;
 		if (a.toString().equals("ADD") && b.toString().equals("ADD"))
 			return true;
+		if (a.toString().equals("ADDI") && b.toString().equals("ADD"))
+			return true;
 		if (a.toString().equals("SUB") && b.toString().equals("ADD"))
 			return true;
 		if (a.toString().equals("MUL") && b.toString().equals("MULT"))
+			return true;
+		if (a.toString().equals("JMP") && b.toString().equals("ADD"))
+			return true;
+		if (a.toString().equals("BEQ") && b.toString().equals("ADD"))
+			return true;
+		if (a.toString().equals("JALR") && b.toString().equals("ADD"))
 			return true;
 		return false;
 	}
@@ -83,18 +92,29 @@ public class Main {
 
 	public static void Fetch() {
 		// get instruction from cache
-		CurrentInstruction++;
+		//CurrentInstruction++;
 	}
 
 	public static void Issue() {
 		
+		// if beq and bne then instruction name is ADD
+		if(ProgramCode[CurrentInstruction].Name.equals("BEQ") || ProgramCode[CurrentInstruction].Name.equals("JMP")|| (ProgramCode[CurrentInstruction].Name.equals("LW")||(ProgramCode[CurrentInstruction].Name.equals("SW")||(ProgramCode[CurrentInstruction].Name.equals("ADDI") )
+		{
+			
+			ReservationStations[freeReservationStation].imm = ProgramCode[CurrentInstruction].immediateValue;
+		}
+		
 		int freeReservationStation = findFreeReservationStation(ProgramCode[CurrentInstruction].Name);
+		
+	
 		if ((!ReservationStations[freeReservationStation].busy && head != tail)
 				|| first) 
 		{
 			first = false;
 			ReservationStations[freeReservationStation].busy = true;
+			
 			ReservationStations[freeReservationStation].operation = ProgramCode[CurrentInstruction].Name;
+			
 			ReservationStations[freeReservationStation].destination = tail;
 			// add conditions for load and store
 			// *********************************
@@ -135,6 +155,22 @@ public class Main {
 			
 			ROB[tail].Destination.Name = ProgramCode[CurrentInstruction].Rd;
 			tail++;
+			CurrentInstruction++;
+			
+			//BRAAAAANCH!!!!!!!!!!!!!!!!!!!
+			///if its a beq,bne then if imm>0 pc+1 else if imm<0 pc +imm
+			if((ProgramCode[CurrentInstruction].Name.equals("BEQ") || ProgramCode[CurrentInstruction].Name.equals("BNE")) ){
+				if(ProgramCode[CurrentInstruction].immediateValue<0){
+					//currentInsr. was incremented before the if condition
+					PCBeforeBranch=CurrentInstruction-1;
+					ROB[tail].taken = true;
+					CurrentInstruction+=ProgramCode[CurrentInstruction].immediateValue-1; 
+				}
+				else
+					ROB[tail].taken = false;
+			}
+			
+			//BRAAAAANCH!!!!!!!!!!!!!!!!!!!
 			
 			// check if tail reached the end of table
 			if (tail > ROBSize)
@@ -150,9 +186,21 @@ public class Main {
 		case SW:
 			//insert in memory
 			break;
-		case JMP: 
+		case JMP:
+			
 			break;
 		case BEQ: 
+			if(Integer.parseInt(fu.Vi.Value)-Integer.parseInt(fu.Vj.Value)==0)
+			{
+				if(!ROB[fu.destination].taken)
+				{
+					ROB[fu.destination].WrongPrediction=true;		
+					// wrong prediction , set rob flag false 
+				}
+				else
+					ROB[fu.destination].WrongPrediction=false;	
+					
+			}
 			break;
 		case JALR: 
 			break;
@@ -225,8 +273,6 @@ public class Main {
 				
 				temp.busy=false;
 				
-				
-				
 			}
 		}
 		
@@ -239,12 +285,29 @@ public class Main {
 		{
 			if(ROB[i].Ready && head==i)
 			{
+				if(!ROB[i].WrongPrediction)
+				{
 				// save value in Memory/REG then (cahce)
-				// if store , des= address, in memory ,Mem[rob.Dest]=value
+				// if store , Des= address, in memory ,Mem[rob.Dest]=value
+				//all operations save rob[i].value in dest register/memory in cache
+				ROB[i].Ready = false;
 				RegisterStatus[registerIndex]=0;
 				head ++;
 				if(head>ROB.length)
 					head=1;
+				}
+				else
+				{
+					if(ROB[i].taken)
+						//cI=pcbeforebranch++
+						CurrentInstruction = PCBeforeBranch ++;
+					else
+						CurrentInstruction = PCBeforeBranch -ProgramCode[PCBeforeBranch].immediateValue+1;
+						// cI= pcbefroe branch - imm +1
+						
+					ROB = new ROBEntry[ROBSize]; // flush rob
+					RegisterStatus = new int[NumberOfRegisters]; // clear reg. status
+				}
 			}
 			
 		}
