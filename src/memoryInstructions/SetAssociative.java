@@ -1,21 +1,21 @@
-package memoryData;
+package memoryInstructions;
 
-import memoryData.CacheData;
-import memoryData.CacheLineData;
-import memoryData.TheBigCacheData;
+import memoryInstructions.Cache;
+import memoryInstructions.CacheLine;
+import memoryInstructions.TheBigCache;
 import memory.*;
 
-public class SetAssociativeData extends TheBigCacheData implements CacheData {
+public class SetAssociative extends TheBigCache implements Cache {
 	// final int MemSize = 65536;
 	boolean[][] DirtyBits;
 	// cache is 2D array of Lines where the first Dimension is the number of
 	// sets and the second dimension is the number of lines per set.
-	public SetOfLinesData[] cache;
+	public SetOfLines[] cache;
 	public int noOfLines;
 	int setSize;
 
 	// lineSize is the size of line in bits
-	public SetAssociativeData(int s, int l, int m) {
+	public SetAssociative(int s, int l, int m) {
 		super(s, l, m);
 		l*=16;
 		this.lengthIndex = (int) (Math.log(s / l) / Math.log(2));
@@ -25,12 +25,12 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 		noOfLines = s / (l * m);
 		setSize = m;
 		DirtyBits = new boolean[noOfLines][setSize];
-		cache = new SetOfLinesData[(s / l) / m];
+		cache = new SetOfLines[(s / l) / m];
 
 		for (int i = 0; i < cache.length; i++) {
-			cache[i] = new SetOfLinesData(m);
+			cache[i] = new SetOfLines(m);
 			for(int j=0; j<m;j++)
-				cache[i].Lines[j] = new CacheLineData(null, "");
+				cache[i].Lines[j] = new CacheLine(null, "");
 		}
 		hier.add(this);
 		this.numberOfAccesses = 0.0;
@@ -68,7 +68,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 			int blockOffset = Integer.parseInt(offsetBinary, 2);
 			String[] data = MainMemory.Read(wordAddress - blockOffset,
 					this.BlockSize);
-			CacheLineData temp = new CacheLineData(data, tagBinary);
+			CacheLine temp = new CacheLine(data, tagBinary);
 			this.cache[index/setSize].Lines[emptySlot] = temp;
 		}
 		else
@@ -102,7 +102,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 					}
 					String[] block = cache[index/setSize].Lines[0].Data;
 
-					SetAssociativeData temp;
+					SetAssociative temp;
 
 					for (int i = hier.indexOf(this) + 1; i < hier
 							.size() && !stop; i++) {
@@ -132,7 +132,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 		int blockOffset = Integer.parseInt(offsetBinary, 2);
 		String[] data = MainMemory.Read(wordAddress - blockOffset,
 				this.BlockSize);
-		CacheLineData temp = new CacheLineData(data, tagBinary);
+		CacheLine temp = new CacheLine(data, tagBinary);
 		this.cache[index / setSize].Lines[index % setSize] = temp;
 		
 		
@@ -172,7 +172,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 					int blockOffset = Integer.parseInt(offsetBinary, 2);
 					String[] tempData = MainMemory.Read(wordAddress - blockOffset,
 							this.BlockSize);
-					CacheLineData temp = new CacheLineData(tempData, tagBinary);
+					CacheLine temp = new CacheLine(tempData, tagBinary);
 					this.cache[index/setSize].Lines[emptySlot] = temp;
 				}
 				else
@@ -206,7 +206,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 							}
 							String[] block = cache[index/setSize].Lines[0].Data;
 
-							SetAssociativeData temp;
+							SetAssociative temp;
 
 							for (int i = hier.indexOf(this) + 1; i < hier
 									.size() && !stop; i++) {
@@ -237,7 +237,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 				String[] newData = MainMemory.Read(wordAddress - blockOffset,
 						this.BlockSize);
 				newData[Integer.parseInt(offsetBinary, 2)] = data;
-				CacheLineData temp = new CacheLineData(newData, tagBinary);
+				CacheLine temp = new CacheLine(newData, tagBinary);
 				this.cache[index / setSize].Lines[index % setSize] = temp;
 	}
 

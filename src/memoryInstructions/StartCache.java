@@ -1,9 +1,9 @@
-package memoryData;
+package memoryInstructions;
 import sun.print.resources.serviceui;
-import memoryData.TheBigCacheData;
+import memoryInstructions.TheBigCache;
 import memory.*;
 
-public class StartCacheData {
+public class StartCache {
 
 	public static void main(String[]args) throws NumberFormatException, IndexOutOfMemoryBoundsException{
 		int s = 16*1024;
@@ -60,22 +60,22 @@ public class StartCacheData {
 		memory.RAM.put("0000000000000000", "Oh yeah !!!");
 		
 		
-		TheBigCacheData cache = new TheBigCacheData(s,l,1);
-		FullyAsosciativeCacheData a = new FullyAsosciativeCacheData(s,l,3);
-		DirectMappedCacheData b = new DirectMappedCacheData(s,l,1);
-		SetAssociativeData c = new SetAssociativeData(s,l,3);
+		TheBigCache cache = new TheBigCache(s,l,1);
+		FullyAsosciativeCache a = new FullyAsosciativeCache(s,l,3);
+		DirectMappedCache b = new DirectMappedCache(s,l,1);
+		SetAssociative c = new SetAssociative(s,l,3);
 		//cache.hier.add(a);
 		//cache.hier.add(b);
 		//cache.hier.add(c);
 		
 		
 		
-		CacheLineData fully = new CacheLineData(new String[]{"yasser","read","works"}, "000000000000");
-		CacheLineData temp2 = new CacheLineData(new String[]{"yaaay","read2","works"}, "000000");
-		CacheLineData temp = new CacheLineData(new String[]{"yasta", "el so7ab", "fi","agaza" },"000001");
+		CacheLine fully = new CacheLine(new String[]{"yasser","read","works"}, "000000000000");
+		CacheLine temp2 = new CacheLine(new String[]{"yaaay","read2","works"}, "000000");
+		CacheLine temp = new CacheLine(new String[]{"yasta", "el so7ab", "fi","agaza" },"000001");
 		//b.lines[0] = temp;
 		//c.cache[0].Lines[2] = temp;
-		a.lines.add(fully);
+		//a.lines.add(fully);
 		b.lines[0] = temp2;
 		
 

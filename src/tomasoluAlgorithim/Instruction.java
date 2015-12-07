@@ -7,7 +7,7 @@ public class Instruction
 	Stage Stage;
 	int immediateValue;
 	int executionCycles;
-	
+	String instructionString;
 	// Instructions manual
 	// *****************************************************************
 	// JMP regA, imm ============> regA = Rd
@@ -33,6 +33,7 @@ public class Instruction
 		this.Rt = d;
 		this. Rd = s;
 		this.Stage = Stage.NEW;
+		this.instructionString = Name.toString() + " " + s.name().toString() + ", " + t.name().toString() + ", " + d.name().toString() ;
 	}
 	
 	// for instructions with two registers and immediate value.
@@ -43,6 +44,7 @@ public class Instruction
 		this.Rs = t;
 		this.immediateValue = immediateValue;
 		this.Stage = Stage.NEW;
+		this.instructionString = Name.toString() + " " + s.name().toString() + ", " + t.name().toString() + immediateValue;
 	}
 	
 	// for instructions with two registers.
@@ -52,6 +54,7 @@ public class Instruction
 		this.Rd = s;
 		this.Rs = t;
 		this.Stage = Stage.NEW;
+		this.instructionString = Name.toString() + " " + s.name().toString() + ", " + t.name().toString();
 	}
 	
 	// for instructions with one register.
@@ -60,6 +63,7 @@ public class Instruction
 		this.Name = Name;
 		this.Rd = s;
 		this.Stage = Stage.NEW;
+		this.instructionString = Name.toString() + " " + s.name().toString();
 	}
 	
 	// for instructions with one register and immediate value.
@@ -68,6 +72,12 @@ public class Instruction
 		this.Name = Name;
 		this.Rd = s;
 		this.immediateValue = imm;
+		this.instructionString = Name.toString() + " " + s.name().toString() + ", " + imm;
+	}
+	
+	public String getInstructionString()
+	{
+		return this.instructionString;
 	}
 
 }

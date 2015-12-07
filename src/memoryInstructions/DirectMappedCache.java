@@ -1,16 +1,16 @@
-package memoryData;
+package memoryInstructions;
 
-import memoryData.CacheLineData;
+import memoryInstructions.CacheLine;
 import memory.*;
 
-public class DirectMappedCacheData extends TheBigCacheData implements CacheData {
+public class DirectMappedCache extends TheBigCache implements Cache {
 
 	// array of data type cache lines, representing individal lines in the cache
-	public CacheLineData[] lines;
+	public CacheLine[] lines;
 	// to be used for write back
 	boolean[] DirtyBit;
 
-	public DirectMappedCacheData(int s, int l, int m) {
+	public DirectMappedCache(int s, int l, int m) {
 		// since direct mapped needs assosciativity to be equal to 1
 		super(s, l, 1);
 		l *= 16;
@@ -18,9 +18,9 @@ public class DirectMappedCacheData extends TheBigCacheData implements CacheData 
 		// this assumes that we are always word addressable
 		this.lengthOffset = (int) (Math.log(l/16) / Math.log(2));
 		this.lengthTag = 16 - lengthIndex - lengthOffset;
-		lines = new CacheLineData[s / l];
+		lines = new CacheLine[s / l];
 		for (int i = 0; i < lines.length; i++) {
-			lines[i] = new CacheLineData(null, "");
+			lines[i] = new CacheLine(null, "");
 		}
 		this.DirtyBit = new boolean[s / l];
 		hier.add(this);
@@ -79,7 +79,7 @@ public class DirectMappedCacheData extends TheBigCacheData implements CacheData 
 							}
 							String[] block =  lines[index].Data;
 							
-							DirectMappedCacheData temp ;
+							DirectMappedCache temp ;
 							
 							for(int i=hier.indexOf(this)+1; i<hier.size() && !stop; i++){
 								
@@ -117,7 +117,7 @@ public class DirectMappedCacheData extends TheBigCacheData implements CacheData 
 		int blockOffset = Integer.parseInt(offsetBinary, 2);
 		String[] data = MainMemory.Read(wordAddress - blockOffset,
 				this.BlockSize);
-		CacheLineData temp = new CacheLineData(data, tagBinary);
+		CacheLine temp = new CacheLine(data, tagBinary);
 		this.lines[index] = temp;
 	}
 
@@ -166,7 +166,7 @@ public class DirectMappedCacheData extends TheBigCacheData implements CacheData 
 							}
 							String[] block =  lines[index].Data;
 							
-							DirectMappedCacheData temp ;
+							DirectMappedCache temp ;
 							
 							for(int i=hier.indexOf(this)+1; i<hier.size() && !stop; i++){
 								
@@ -199,7 +199,7 @@ public class DirectMappedCacheData extends TheBigCacheData implements CacheData 
 		String[] newData = MainMemory.Read(wordAddress - blockOffset,
 				this.BlockSize);
 		newData[Integer.parseInt(offsetBinary, 2)] = data;
-		CacheLineData temp = new CacheLineData(newData, tagBinary);
+		CacheLine temp = new CacheLine(newData, tagBinary);
 		this.lines[index] = temp;
 	}
 

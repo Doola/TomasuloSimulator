@@ -1,21 +1,21 @@
-package memoryData;
+package memoryInstructions;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import memory.*;
 
-public class TheBigCacheData implements CacheData{
+public class TheBigCache implements Cache{
 	int Size, BlockSize, assosciativity, lengthIndex,
 	lengthOffset, lengthTag; 
 	double accessTime, numberOfMisses, numberOfAccesses;
 	boolean WriteBack, WriteThrough;
 	
-	static LinkedList<TheBigCacheData> hier = new LinkedList<TheBigCacheData>();
+	static LinkedList<TheBigCache> hier = new LinkedList<TheBigCache>();
 	static int currentCachePosition = 0;
 
 	
 	
-	public TheBigCacheData(int S, int L, int m)
+	public TheBigCache(int S, int L, int m)
 	{
 		this.Size = S;
 		// assuming we are given number of words not bits

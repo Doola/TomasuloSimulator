@@ -1,11 +1,14 @@
 package memory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import tomasoluAlgorithim.Instruction;
 
 public class MainMemory {
 
-	static HashMap<String, String> RAM;
-	static double accessTime = 0.0;
+	public static HashMap<String, String> RAM;
+	public static double accessTime = 0.0;
 
 	public MainMemory() {
 		RAM = new HashMap<String, String>();
@@ -50,6 +53,16 @@ public class MainMemory {
 			block[i] = RAM.get(address);
 		}
 		return block;
+	}
+	
+	public static void LoadToMemory(ArrayList<Instruction> instructions,int address){
+		
+		for (int i = 0; i < instructions.size(); i++) {
+			String addres = Integer.toBinaryString(address + i);
+			while(addres.length() < 16)
+				addres = "0" + addres;
+			RAM.put(addres, instructions.get(i).getInstructionString());
+		}
 	}
 
 	public static String ReadTemp(String wordAddress) {

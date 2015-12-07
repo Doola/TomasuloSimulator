@@ -1,15 +1,15 @@
-package memoryData;
+package memoryInstructions;
 
 import java.util.LinkedList;
 import memory.*;
 
-public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheData {
+public class FullyAsosciativeCache extends TheBigCache implements Cache {
 
-	public LinkedList<CacheLineData> lines;
+	public LinkedList<CacheLine> lines;
 	boolean[] DirtyBit;
 	int maxNumberLines;
 
-	public FullyAsosciativeCacheData(int S, int L, int m) {
+	public FullyAsosciativeCache(int S, int L, int m) {
 		super(S, L, m);
 		L *= 16;
 		this.lengthIndex = 0;
@@ -17,7 +17,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 		maxNumberLines = S / L;
 		this.lengthOffset = (int) (Math.log(L / 16) / Math.log(2));
 		this.lengthTag = 16 - lengthIndex - lengthOffset;
-		lines = new LinkedList<CacheLineData>();
+		lines = new LinkedList<CacheLine>();
 		this.DirtyBit = new boolean[S / L];
 		hier.add(this);
 		this.numberOfAccesses = 0.0;
@@ -93,7 +93,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 		}
 
 		if (lines.size() < maxNumberLines) {
-			CacheLineData temp = new CacheLineData(MainMemory.Read(wordAddress,
+			CacheLine temp = new CacheLine(MainMemory.Read(wordAddress,
 					this.BlockSize), tagBinary);
 			lines.addLast(temp);
 		} else {
@@ -121,7 +121,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 					}
 					String[] block = lines.getFirst().Data;
 
-					DirectMappedCacheData temp;
+					DirectMappedCache temp;
 
 					for (int i = hier.indexOf(this) + 1; i < hier.size()
 							&& !stop; i++) {
@@ -174,7 +174,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 		
 
 		if (lines.size() < maxNumberLines) {
-			CacheLineData temp = new CacheLineData(MainMemory.Read(wordAddress,
+			CacheLine temp = new CacheLine(MainMemory.Read(wordAddress,
 					this.BlockSize), tagBinary);
 			lines.addLast(temp);
 		} else {
@@ -202,7 +202,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 					}
 					String[] block = lines.getFirst().Data;
 
-					DirectMappedCacheData temp;
+					DirectMappedCache temp;
 
 					for (int i = hier.indexOf(this) + 1; i < hier.size()
 							&& !stop; i++) {
@@ -231,7 +231,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 			}
 			else
 			{
-				CacheLineData temp = new CacheLineData(MainMemory.Read(wordAddress,
+				CacheLine temp = new CacheLine(MainMemory.Read(wordAddress,
 						this.BlockSize), tagBinary);
 				lines.removeFirst();
 				lines.addFirst(temp);
@@ -263,10 +263,10 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 				this.DirtyBit[c] = true;
 		} else {
 			if (this.lines.size() < maxNumberLines)
-				this.lines.addFirst(new CacheLineData(data, tagBinary));
+				this.lines.addFirst(new CacheLine(data, tagBinary));
 			else {
 				this.lines.removeFirst();
-				this.lines.addFirst(new CacheLineData(data, tagBinary));
+				this.lines.addFirst(new CacheLine(data, tagBinary));
 			}
 		}
 	}

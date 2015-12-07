@@ -1,10 +1,13 @@
 package tomasoluAlgorithim;
 
+import java.io.IOException;
 import java.security.KeyRep.Type;
 import java.util.ArrayList;
 
 import sun.misc.Queue;
 import memory.*;
+import memoryData.*;
+import memoryInstructions.*;
 
 public class Main {
 	static int ROBSize;
@@ -26,9 +29,17 @@ public class Main {
 	static boolean CanWrite = true;
 	static Queue WriteQueu = new Queue();
 	static Queue LoadStore = new Queue();
-	static int NrOfBranches=0;
-	static int NrOfBranchesMispredicted=0;
+	static int NrOfBranches = 0;
+	static int NrOfBranchesMispredicted = 0;
 	static int cycle;
+	static TheBigCacheData dataCache;
+	static TheBigCache instructionCache;
+	static MainMemory memory = new MainMemory();
+	static String filePath = "";
+	static int ProgramStartAddress = 0; // to be intialised during program start
+	static int numbberOfInstructions;
+	static int PC;
+	static int programCodeCounter = 0;
 
 	// static Queue ROBTable;
 	public Main() {
@@ -44,7 +55,8 @@ public class Main {
 		TheBigTable = (ArrayList<Stage>[]) new ArrayList[NumberOfInstructions];
 	}
 
-	public static boolean FunctionalUnitNameToInstructionName(InstructionName a, FunctionalUnitName b) {
+	public static boolean FunctionalUnitNameToInstructionName(
+			InstructionName a, FunctionalUnitName b) {
 		// check the rest of the instructions
 		// **************************************
 		// **************************************
@@ -75,7 +87,8 @@ public class Main {
 
 	public static int findFreeReservationStation(InstructionName a) {
 		for (int i = 0; i < ReservationStations.length; i++) {
-			if (FunctionalUnitNameToInstructionName(a, ReservationStations[i].name)) {
+			if (FunctionalUnitNameToInstructionName(a,
+					ReservationStations[i].name)) {
 				return i;
 			}
 		}
@@ -92,20 +105,76 @@ public class Main {
 		return false;
 	}
 
+	public static boolean CheckAddress(ROBEntry r, int a, FunctionalUnit f) {
+		for (int i = 1; i < f.destination; i++) {
+			if (a == Integer.parseInt(r.Destination.Value)
+					&& ROB[i].type.equals(ROBType.valueOf("SD")))
+				return false;
+		}
+
+		return true;
+	}
+
+	public static boolean StoreBeforeLoad(FunctionalUnit f) {
+		for (int i = f.instructionPosition; i > -1; i++) {
+			if (ProgramCode[i].Name.equals("SW"))
+				return true;
+		}
+		return false;
+	}
+
+	public static void LoadDataToMemory(String filString, int startingAddress) {
+		ProgramParser parser = new ProgramParser();
+		try {
+			ArrayList<Instruction> programCode = parser.ReadProgram(filString);
+			// add these instructions to cache
+			// I need to know the address
+
+			numbberOfInstructions = programCode.size();
+			CurrentInstruction = ProgramStartAddress;
+			memory.LoadToMemory(programCode, ProgramStartAddress);
+			ProgramCode = new Instruction[numbberOfInstructions];
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public static void Fetch() {
-		// get instruction from cache
-		// CurrentInstruction++;
+		if (programCodeCounter < numbberOfInstructions) {
+			try {
+				String instruction = instructionCache.Read(CurrentInstruction);
+				ProgramParser ps = new ProgramParser();
+				ArrayList<String> ls = new ArrayList<String>();
+				ls.add(instruction);
+				ArrayList<Instruction> temp = ps.processStream(ls);
+				ProgramCode[programCodeCounter] = temp.get(0);
+				programCodeCounter++;
+				CurrentInstruction++;
+			} catch (IndexOutOfMemoryBoundsException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static void Issue() {
-
 		// if beq and bne then instruction name is ADD
-		if (ProgramCode[CurrentInstruction].Name.equals("BEQ") || ProgramCode[CurrentInstruction].Name.equals("JMP")
+		if (ProgramCode[CurrentInstruction].Name.equals("BEQ")
+				|| ProgramCode[CurrentInstruction].Name.equals("JMP")
 				|| ProgramCode[CurrentInstruction].Name.equals("LW")
 				|| ProgramCode[CurrentInstruction].Name.equals("SW")
 				|| ProgramCode[CurrentInstruction].Name.equals("ADDI")) {
-			
-			if(ProgramCode[CurrentInstruction].Name.equals("BEQ")) //Awel ma ygeeli branch increment to get the total nr of branches in code.
+
+			if (ProgramCode[CurrentInstruction].Name.equals("BEQ")) // Awel ma
+																	// ygeeli
+																	// branch
+																	// increment
+																	// to get
+																	// the total
+																	// nr of
+																	// branches
+																	// in code.
 				NrOfBranches++;
 			int freeReservationStation = findFreeReservationStation(ProgramCode[CurrentInstruction].Name);
 
@@ -116,66 +185,75 @@ public class Main {
 
 		// If this reservation station is not busy insert instruction in it's
 		// correct FU.
-		if ((!ReservationStations[freeReservationStation].busy && head != tail) || first) {
+		if ((!ReservationStations[freeReservationStation].busy && head != tail)
+				|| first) {
 			first = false;
 			ReservationStations[freeReservationStation].busy = true;
 
 			ReservationStations[freeReservationStation].operation = ProgramCode[CurrentInstruction].Name;
 
+			ReservationStations[freeReservationStation].instructionPosition = CurrentInstruction;
+
 			ReservationStations[freeReservationStation].destination = tail;
-	
-			if ( !ProgramCode[CurrentInstruction].Name.toString().equals("RET") && !(ProgramCode[CurrentInstruction].Name.toString().equals("JMP")))
-			{
+
+			if (!ProgramCode[CurrentInstruction].Name.toString().equals("RET")
+					&& !(ProgramCode[CurrentInstruction].Name.toString()
+							.equals("JMP"))) {
 				if (FreeRegisterStatus(ProgramCode[CurrentInstruction].Rs)) {
-				ReservationStations[freeReservationStation].Vi.Name = ProgramCode[CurrentInstruction].Rs;
+					ReservationStations[freeReservationStation].Vi.Name = ProgramCode[CurrentInstruction].Rs;
 				} else {
-				String s = ProgramCode[CurrentInstruction].Rs.toString().substring(1);
-				int registerIndex = Integer.parseInt(s);
-				ReservationStations[freeReservationStation].Qi = RegisterStatus[registerIndex];
+					String s = ProgramCode[CurrentInstruction].Rs.toString()
+							.substring(1);
+					int registerIndex = Integer.parseInt(s);
+					ReservationStations[freeReservationStation].Qi = RegisterStatus[registerIndex];
 				}
 			}
-			////
+			// //
 			if (ProgramCode[CurrentInstruction].Name.toString().equals("ADD")
-					|| ProgramCode[CurrentInstruction].Name.toString().equals("MUL")
-					|| ProgramCode[CurrentInstruction].Name.toString().equals("SUB")
-					|| ProgramCode[CurrentInstruction].Name.toString().equals("NAND"))
-			{
-				
+					|| ProgramCode[CurrentInstruction].Name.toString().equals(
+							"MUL")
+					|| ProgramCode[CurrentInstruction].Name.toString().equals(
+							"SUB")
+					|| ProgramCode[CurrentInstruction].Name.toString().equals(
+							"NAND")) {
+
 				if (FreeRegisterStatus(ProgramCode[CurrentInstruction].Rt)) {
 					ReservationStations[freeReservationStation].Vj.Name = ProgramCode[CurrentInstruction].Rt;
 				} else {
-					String s = ProgramCode[CurrentInstruction].Rt.toString().substring(1);
+					String s = ProgramCode[CurrentInstruction].Rt.toString()
+							.substring(1);
 					int registerIndex = Integer.parseInt(s);
 					ReservationStations[freeReservationStation].Qj = RegisterStatus[registerIndex];
 				}
-				
+
 			}
-			if(!ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
+			if (!ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
 				ROB[tail].Destination.Name = ProgramCode[CurrentInstruction].Rd;
 			else
 				ReservationStations[freeReservationStation].Vj.Name = ProgramCode[CurrentInstruction].Rd;
-			
-			
+
 			if (ProgramCode[CurrentInstruction].Name.toString().equals("LW"))
 				ROB[tail].type = ROBType.LD;
-			else if (ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
+			else if (ProgramCode[CurrentInstruction].Name.toString().equals(
+					"SW"))
 				ROB[tail].type = ROBType.SD;
 			else
 				ROB[tail].type = ROBType.INT;
-			////////////
+			// //////////
 
 			if (ProgramCode[CurrentInstruction].Name.toString().equals("LW")
-					|| ProgramCode[CurrentInstruction].Name.toString().equals("SW")) {
+					|| ProgramCode[CurrentInstruction].Name.toString().equals(
+							"SW")) {
 
 				ReservationStations[freeReservationStation].Address = ProgramCode[CurrentInstruction].immediateValue;
 			}
 
-			CurrentInstruction++;
+			// CurrentInstruction++;
 
 			// BRAAAAANCH!!!!!!!!!!!!!!!!!!!
-			/// if its a beq,bne then if imm>0 pc+1 else if imm<0 pc +imm
-			if ((ProgramCode[CurrentInstruction].Name.equals("BEQ")
-					|| ProgramCode[CurrentInstruction].Name.equals("BNE"))) {
+			// / if its a beq,bne then if imm>0 pc+1 else if imm<0 pc +imm
+			if ((ProgramCode[CurrentInstruction].Name.equals("BEQ") || ProgramCode[CurrentInstruction].Name
+					.equals("BNE"))) {
 				if (ProgramCode[CurrentInstruction].immediateValue < 0) {
 					// currentInsr. was incremented before the if condition
 					ROB[tail].PCBeforeBranch = CurrentInstruction - 1;
@@ -199,7 +277,8 @@ public class Main {
 		switch (fu.operation) {
 
 		case JMP:
-			return Integer.parseInt(ROB[fu.destination].Destination.Value) + fu.imm + 1 + CurrentInstruction + "";
+			return Integer.parseInt(ROB[fu.destination].Destination.Value)
+					+ fu.imm + 1 + CurrentInstruction + "";
 		case JALR:
 			fu.Vj.Value = CurrentInstruction + 1 + "";
 			return Integer.parseInt(fu.Vi.Value) + "";
@@ -208,7 +287,8 @@ public class Main {
 			return Integer.parseInt(ROB[fu.destination].Destination.Value) + "";
 
 		case BEQ:
-			if (Integer.parseInt(fu.Vi.Value) - Integer.parseInt(ROB[fu.destination].Destination.Value) == 0) {
+			if (Integer.parseInt(fu.Vi.Value)
+					- Integer.parseInt(ROB[fu.destination].Destination.Value) == 0) {
 				if (!ROB[fu.destination].taken) {
 					ROB[fu.destination].WrongPrediction = true;
 					// wrong prediction , set rob flag false
@@ -218,51 +298,70 @@ public class Main {
 			}
 			break;
 		case ADD:
-			return Integer.parseInt(fu.Vi.Value) + Integer.parseInt(fu.Vj.Value) + "";
+			return Integer.parseInt(fu.Vi.Value)
+					+ Integer.parseInt(fu.Vj.Value) + "";
 		case SUB:
-			return Integer.parseInt(fu.Vi.Value) - Integer.parseInt(fu.Vj.Value) + "";
+			return Integer.parseInt(fu.Vi.Value)
+					- Integer.parseInt(fu.Vj.Value) + "";
 		case ADDI:
 			return Integer.parseInt(fu.Vi.Value) + fu.imm + "";
 		case NAND:
-			return ~(Integer.parseInt(fu.Vi.Value) & Integer.parseInt(fu.Vj.Value)) + "";
+			return ~(Integer.parseInt(fu.Vi.Value) & Integer
+					.parseInt(fu.Vj.Value)) + "";
 		case MUL:
-			return Integer.parseInt(fu.Vi.Value) * Integer.parseInt(fu.Vj.Value) + "";
+			return Integer.parseInt(fu.Vi.Value)
+					* Integer.parseInt(fu.Vj.Value) + "";
 		}
 		return null;
 	}
 
-	public static void Execute() {
+	public static void Execute() throws IndexOutOfMemoryBoundsException {
 		// loop over all functions in RS and execute them if operands are ready
 		// execute: calculate the number of cycles need to finish execution/
 		// add to write array
 		// Actually execute
 		for (int i = 0; i < ReservationStations.length; i++) {
-			if (ReservationStations[i].Qi == 0 && ReservationStations[i].Qj == 0
+			if (ReservationStations[i].Qi == 0
+					&& ReservationStations[i].Qj == 0
 					&& ReservationStations[i].cyclesRemaining >= 0) {
 				// Execute the instruction then
 				if (ReservationStations[i].cyclesRemaining == 0) {
 					if (ReservationStations[i].operation.equals("SW")) {
 						if (ReservationStations[i].Qi == 0) {
-							//////////
+							// ////////
 							ROB[ReservationStations[i].destination].Destination.Value = ReservationStations[i].Address
 									+ ReservationStations[i].Vi.Value;
 
 						}
 					} else if (ReservationStations[i].operation.equals("LW")) {
-						if (ReservationStations[i].Qi == 0 /* && no stores */) {
+						if (ReservationStations[i].Qi == 0
+								&& !StoreBeforeLoad(ReservationStations[i])/*
+																			 * &&
+																			 * no
+																			 * stores
+																			 */) {
 							// calculate value
 
 							ReservationStations[i].Address = ReservationStations[i].Address
-									+ Integer.parseInt(ReservationStations[i].Vi.Value);
-							// check all stores have ROB have diff address
-							// read from Memory
-							// MEM[ReservationStations[i].Address] DOOLA and
+									+ Integer
+											.parseInt(ReservationStations[i].Vi.Value);
+							if (CheckAddress(
+									ROB[ReservationStations[i].destination],
+									ReservationStations[i].Address,
+									ReservationStations[i]))
+
+							{
+								ROB[ReservationStations[i].destination].Value = dataCache
+										.Read(ReservationStations[i].Address);
+							}
+
 							// store in rd
 						}
 					} else if (ReservationStations[i].operation.equals("JMP")
 							|| ReservationStations[i].operation.equals("JALR")
 							|| ReservationStations[i].operation.equals("RET")) {
-						CurrentInstruction = Integer.parseInt(CalculateValue(ReservationStations[i]));
+						CurrentInstruction = Integer
+								.parseInt(CalculateValue(ReservationStations[i]));
 					}
 
 					else
@@ -293,11 +392,12 @@ public class Main {
 				ROB[temp.destination].Value = temp.value;
 				// if store
 				if (temp.name.equals("STORE") && temp.Qj == 0)
-					ROB[temp.destination].Value = temp.Vj;
-				
+					ROB[temp.destination].Value = temp.Vj.Name.toString();
+
 				ROB[temp.destination].Ready = true;
 
-				String s = ROB[temp.destination].Destination.Name.toString().substring(1);
+				String s = ROB[temp.destination].Destination.Name.toString()
+						.substring(1);
 				int registerIndex = Integer.parseInt(s);
 				for (int k = 0; k < ReservationStations.length; k++) {
 					if (ReservationStations[k].Qi == RegisterStatus[registerIndex])
@@ -314,18 +414,28 @@ public class Main {
 
 	}
 
-	public static void Commit() {
+	public static void Commit() throws NumberFormatException,
+			IndexOutOfMemoryBoundsException {
 		// wrong prediction
-		for (int i = 0; i < ROB.length; i++) {
+		for (int i = 1; i < ROB.length; i++) {
 			if (ROB[i].Ready && head == i) {
 				if (!ROB[i].WrongPrediction) {
 					// save value in Memory/REG then (cahce)
-					// if store , Des= address, in memory ,Mem[rob.Dest]=value (DONE)
+					// if store , Des= address, in memory ,Mem[rob.Dest]=value
+					// (DONE)
 					// all operations save rob[i].value in dest register/memory
 					// in caches
-					if(ROB[i].Type.equals(Type.valueOf("SD")))
-					{
-						dataCache.Write(ROB[i].Destination,ROB[i].Value);
+					if (ROB[i].type.equals(ROBType.valueOf("SD"))) {
+						dataCache.Write(
+								Integer.parseInt(ROB[i].Destination.Value),
+								ROB[i].Value);
+					}
+					if (ROB[i].type.equals(ROBType.valueOf("LD"))) {
+
+						String s = ROB[i].Destination.toString().substring(1);
+						int registerIndex = Integer.parseInt(s);
+
+						RegisterFile[registerIndex].Value = ROB[i].Value;
 					}
 					ROB[i].Ready = false;
 					String s = ROB[i].Destination.toString().substring(1);
@@ -339,12 +449,18 @@ public class Main {
 						// cI=pcbeforebranch++
 						CurrentInstruction = ROB[i].PCBeforeBranch++;
 					else
-						CurrentInstruction = ROB[i].PCBeforeBranch - ProgramCode[ROB[i].PCBeforeBranch].immediateValue + 1;
+						CurrentInstruction = ROB[i].PCBeforeBranch
+								- ProgramCode[ROB[i].PCBeforeBranch].immediateValue
+								+ 1;
 					// cI= pcbefroe branch - imm +1
 
 					ROB = new ROBEntry[ROBSize]; // flush rob
-					RegisterStatus = new int[NumberOfRegisters]; // clear reg.status
-					NrOfBranchesMispredicted ++; //The number of times we flush the ROB indicates the number of times it was a mispredicton
+					RegisterStatus = new int[NumberOfRegisters]; // clear
+																	// reg.status
+					NrOfBranchesMispredicted++; // The number of times we flush
+												// the ROB indicates the number
+												// of times it was a
+												// mispredicton
 				}
 			}
 
@@ -352,28 +468,69 @@ public class Main {
 
 	}
 
-	public static void main(String[] args) throws InterruptedException {
-		
-		
-		
-		
-		// intialise memory we hakaza
-		int s = 16*1024;
-		int l = 16;
-		MainMemory memory = new MainMemory();
-		TheBigCacheData dataCache= new TheBigCacheData ();
-		
+	public static void main(String[] args) throws InterruptedException,
+			IndexOutOfMemoryBoundsException {
 
-		for (int i = 1; i <= cycle; i++) {
-			Fetch();
-			Issue();
-			Execute();
-			WriteBack();
-			// cycles++;
-		}
+		// intialise memory we hakaza
+
+		int s = 16 * 1024;
+		int l = 16;
+
+		// Data Cache
+		dataCache = new TheBigCacheData(s, l, 1);
+		FullyAsosciativeCacheData a = new FullyAsosciativeCacheData(s, l, 3);
+		DirectMappedCacheData b = new DirectMappedCacheData(s, l, 1);
+		SetAssociativeData c = new SetAssociativeData(s, l, 3);
+		CacheLineData fully = new CacheLineData(new String[] { "yasser",
+				"read", "works" }, "000000000000");
+		CacheLineData temp2 = new CacheLineData(new String[] { "yaaay",
+				"read2", "works" }, "000000");
+		CacheLineData temp = new CacheLineData(new String[] { "yasta",
+				"el so7ab", "fi", "agaza" }, "000001");
+		// b.lines[0] = temp;
+		c.cache[0].Lines[2] = temp;
+		a.lines.add(fully);
+		b.lines[0] = temp2;
+
+		// Instruction Cache
+
+		instructionCache = new TheBigCache(s, l, 1);
+		FullyAsosciativeCache a2 = new FullyAsosciativeCache(s, l, 3);
+		DirectMappedCache b2 = new DirectMappedCache(s, l, 1);
+		SetAssociative c2 = new SetAssociative(s, l, 3);
+		CacheLine fully2 = new CacheLine(new String[] { "yasser", "read",
+				"works" }, "000000000000");
+		CacheLine temp22 = new CacheLine(new String[] { "yaaay", "read2",
+				"works" }, "000000");
+		CacheLine temp1 = new CacheLine(new String[] { "yasta", "el so7ab",
+				"fi", "agaza" }, "000001");
+		// b.lines[0] = temp;
+		// c.cache[0].Lines[2] = temp;
+		// a.lines.add(fully);
+		// b2.lines[0] = temp22;
+
+		/*
+		 * for (int i = 1; i <= cycle; i++) { Fetch(); Issue(); Execute();
+		 * WriteBack(); // cycles++; }s
+		 * 
+		 * if (NrOfBranches != 0) { int TotatlMisprediction =
+		 * NrOfBranchesMispredicted / NrOfBranches; }
+		 */
+
+		String filString = "/Users/ahmedabodeif1/Desktop/tomTest";
+		LoadDataToMemory(filString, 0);
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
 		
-		if (NrOfBranches!=0){	
-		int TotatlMisprediction = NrOfBranchesMispredicted/NrOfBranches;
-		}
+		System.out.println(ProgramCode[0].toString());
+		// System.out.println(instructionCache.Read(0));
+		// System.out.println(instructionCache.Read(3));
 	}
 }

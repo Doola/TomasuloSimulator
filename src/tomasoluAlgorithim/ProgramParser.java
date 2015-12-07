@@ -15,6 +15,7 @@ public class ProgramParser {
 
 		return processStream(getProgram(filePath));
 	}
+	
 
 	public ArrayList<Instruction> processStream(ArrayList<String> lines) {
 		ArrayList<Instruction> out = new ArrayList<Instruction>();
@@ -22,52 +23,82 @@ public class ProgramParser {
 		InstructionName name;
 		String[] temp;
 		for (int i = 0; i < lines.size(); i++) {
-			temp = lines.get(i).split(" ");
+			temp = lines.get(i).replaceAll("[,;]", "").split(" ");
 
 			switch (temp[0]) {
 			case "LW":
 				name = InstructionName.LW;
+				tempInstruction = new Instruction(name,
+						RegisterName.valueOf(temp[1]),
+						RegisterName.valueOf(temp[2]),
+						Integer.parseInt(temp[3]));
+						break;
 			case "SW":
 				name = InstructionName.SW;
+				tempInstruction = new Instruction(name,
+						RegisterName.valueOf(temp[1]),
+						RegisterName.valueOf(temp[2]),
+						Integer.parseInt(temp[3]));
+						break;
 			case "ADDI":
 				name = InstructionName.ADDI;
+				tempInstruction = new Instruction(name,
+						RegisterName.valueOf(temp[1]),
+						RegisterName.valueOf(temp[2]),
+						Integer.parseInt(temp[3]));
+						break;
 			case "BREQ":
 				name = InstructionName.BEQ;
 				tempInstruction = new Instruction(name,
 						RegisterName.valueOf(temp[1]),
 						RegisterName.valueOf(temp[2]),
 						Integer.parseInt(temp[3]));
-				break;
+						break;
 			case "ADD":
 				name = InstructionName.ADD;
+				tempInstruction = new Instruction(name,
+						RegisterName.valueOf(temp[1]),
+						RegisterName.valueOf(temp[2]),
+						RegisterName.valueOf(temp[3]));
+						break;
 			case "SUB":
 				name = InstructionName.SUB;
+				tempInstruction = new Instruction(name,
+						RegisterName.valueOf(temp[1]),
+						RegisterName.valueOf(temp[2]),
+						RegisterName.valueOf(temp[3]));
+						break;
 			case "NAND":
 				name = InstructionName.NAND;
+				tempInstruction = new Instruction(name,
+						RegisterName.valueOf(temp[1]),
+						RegisterName.valueOf(temp[2]),
+						RegisterName.valueOf(temp[3]));
+						break;
 			case "MUL":
 				name = InstructionName.MUL;
 				tempInstruction = new Instruction(name,
 						RegisterName.valueOf(temp[1]),
 						RegisterName.valueOf(temp[2]),
 						RegisterName.valueOf(temp[3]));
-				break;
+						break;
 			case "JMP":
 				name = InstructionName.JMP;
 				tempInstruction = new Instruction(name,
 						RegisterName.valueOf(temp[1]),
 						Integer.parseInt(temp[2]));
-				break;
+						break;
 			case "JALR":
 				name = InstructionName.JALR;
 				tempInstruction = new Instruction(name,
 						RegisterName.valueOf(temp[1]),
 						RegisterName.valueOf(temp[2]));
-				break;
+						break;
 			case "RET":
 				name = InstructionName.RET;
 				tempInstruction = new Instruction(name,
 						RegisterName.valueOf(temp[1]));
-				break;
+						break;
 
 			}
 
@@ -106,6 +137,8 @@ public class ProgramParser {
 		String s = "ADD regA, regB, regC";
 		String lineWithoutCommas = s.replaceAll("[,;]", "");
 		String[] temp = lineWithoutCommas.split(" ");
+		System.out.println(lineWithoutCommas);
+		
 		for (int i = 0; i < temp.length; i++) {
 			System.out.println(temp[i]);
 		}
