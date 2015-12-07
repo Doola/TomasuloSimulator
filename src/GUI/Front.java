@@ -28,10 +28,34 @@ public class Front extends javax.swing.JFrame {
  public Object [][] ReservationStation = new Object [2][8]; /// CHANGE TO Main.ReservationStations.length
  public Object [][] RegisterStatus = new Object[1][10];
  public Object [][] ROB = new Object[4][6]; // change according to input.
+ String LevelsOfCache;
+ int CacheLevel;
+ String [] Jcomb1;
+ String CacheDetails;
+ int RevStationSize;
+ int MemoryAccessTime,NoOfLoads,NoOfStores,NoOfAdds,NoOfMults;
+ String Write;
     /**
      * Creates new form Front
      */
-    public Front() {
+    public Front(String filename, String LevelsOfCache, int Cachelevel,String [] Jcomb1,String CacheDetails,int RevStationSize,int MemoryAccessTime,int NoOfLoads, int NoOfStores,int NoOfAdds,int NoOfMults ) {
+    	this.filename=filename;
+    	this.LevelsOfCache= LevelsOfCache;
+    	this.CacheLevel =Cachelevel;
+    	this.Jcomb1= Jcomb1;
+    	this.CacheDetails= CacheDetails;
+    	this.RevStationSize= RevStationSize;
+    	this.MemoryAccessTime=MemoryAccessTime;
+    	this.NoOfLoads=NoOfLoads;
+    	this.NoOfStores=NoOfStores;
+    	this.NoOfAdds=NoOfAdds;
+    	this.NoOfMults=NoOfMults;
+    	
+    	
+    	
+    	
+    	
+    	
     	populateROB();
     	populateReservationStation();
     	populateRegisterStatus();
@@ -482,7 +506,7 @@ public void populateROB(){
         File file =chooser.getSelectedFile();
         filename= file.getAbsolutePath();
         jTextField1.setText(filename);
-        
+        Main.filePath=filename;
         System.out.println("data loaded");
         
     }                                        
@@ -582,11 +606,11 @@ public void populateROB(){
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Front().setVisible(true);
-            }
-        });
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new Front().setVisible(true);
+//            }
+//        });
     }
 
     // Variables declaration - do not modify                     
