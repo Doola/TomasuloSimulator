@@ -1,5 +1,6 @@
 package tomasoluAlgorithim;
 
+import java.security.KeyRep.Type;
 import java.util.ArrayList;
 
 import sun.misc.Queue;
@@ -149,8 +150,12 @@ public class Main {
 				}
 				
 			}
-			ROB[tail].Destination.Name = ProgramCode[CurrentInstruction].Rd;
-			/////////
+			if(!ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
+				ROB[tail].Destination.Name = ProgramCode[CurrentInstruction].Rd;
+			else
+				ReservationStations[freeReservationStation].Vj.Name = ProgramCode[CurrentInstruction].Rd;
+			
+			
 			if (ProgramCode[CurrentInstruction].Name.toString().equals("LW"))
 				ROB[tail].type = ROBType.LD;
 			else if (ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
@@ -164,8 +169,6 @@ public class Main {
 
 				ReservationStations[freeReservationStation].Address = ProgramCode[CurrentInstruction].immediateValue;
 			}
-
-			
 
 			CurrentInstruction++;
 
@@ -290,7 +293,8 @@ public class Main {
 				ROB[temp.destination].Value = temp.value;
 				// if store
 				if (temp.name.equals("STORE") && temp.Qj == 0)
-					ROB[temp.destination].Value = temp.Vi.Name.toString();
+					ROB[temp.destination].Value = temp.Vj;
+				
 				ROB[temp.destination].Ready = true;
 
 				String s = ROB[temp.destination].Destination.Name.toString().substring(1);
@@ -316,9 +320,13 @@ public class Main {
 			if (ROB[i].Ready && head == i) {
 				if (!ROB[i].WrongPrediction) {
 					// save value in Memory/REG then (cahce)
-					// if store , Des= address, in memory ,Mem[rob.Dest]=value
+					// if store , Des= address, in memory ,Mem[rob.Dest]=value (DONE)
 					// all operations save rob[i].value in dest register/memory
 					// in caches
+					if(ROB[i].Type.equals(Type.valueOf("SD")))
+					{
+						dataCache.Write(ROB[i].Destination,ROB[i].Value);
+					}
 					ROB[i].Ready = false;
 					String s = ROB[i].Destination.toString().substring(1);
 					int registerIndex = Integer.parseInt(s);
@@ -353,7 +361,7 @@ public class Main {
 		int s = 16*1024;
 		int l = 16;
 		MainMemory memory = new MainMemory();
-		
+		TheBigCacheData dataCache= new TheBigCacheData ();
 		
 
 		for (int i = 1; i <= cycle; i++) {
