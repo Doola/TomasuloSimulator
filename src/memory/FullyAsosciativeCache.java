@@ -25,15 +25,18 @@ public class FullyAsosciativeCache extends TheBigCache implements Cache {
 
 	public String Read(int wordAddress) {
 		String word = Integer.toBinaryString(wordAddress);
-		String tagBinary = word.substring(lengthTag);
+		for (int i = word.length(); i <= 16; i++) {
+			word = "0" + word;
+		}
+		String tagBinary = word.substring(0,lengthTag);
 		// length of tag and offset should be equal to 16
-		String offsetBinary = word.substring(lengthTag, lengthTag
-				+ lengthOffset);
+		String offsetBinary = word.substring(lengthTag+1, lengthTag
+				+ lengthOffset + 1);
 
 		// no need to check for valid bits because list is empty when no data is
 		// inserted
 		for (int i = 0; i < lines.size(); i++) {
-			if (lines.get(i).Tag == tagBinary) {
+			if (lines.get(i).Tag.equals(tagBinary)) {
 				return lines.get(i).Data[Integer.parseInt(offsetBinary, 2)];
 			}
 		}
@@ -46,12 +49,10 @@ public class FullyAsosciativeCache extends TheBigCache implements Cache {
 			word = "0" + word;
 		}
 		String tagBinary = word.substring(0, lengthTag);
-		String indexBinary = word.substring(lengthTag + 1, lengthTag
-				+ lengthIndex + 1);
 		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 
 		for (int i = 0; i < lines.size(); i++) {
-			if (lines.get(i).Tag == tagBinary) {
+			if (lines.get(i).Tag.equals(tagBinary)) {
 				if (this.WriteBack) {
 					this.DirtyBit[i] = true;
 				}
@@ -72,10 +73,7 @@ public class FullyAsosciativeCache extends TheBigCache implements Cache {
 			word = "0" + word;
 		}
 		String tagBinary = word.substring(0, lengthTag);
-		String indexBinary = word.substring(lengthTag + 1, lengthTag
-				+ lengthIndex + 1);
 		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
-		int index = Integer.parseInt(indexBinary, 2);
 		// If i am removing a line from write back and it has a dirty bit
 		// then I need to move to lower levels writing till I reach an other
 		// write Back
@@ -87,7 +85,7 @@ public class FullyAsosciativeCache extends TheBigCache implements Cache {
 		// lw mfeesh kick awel element
 		// so smart
 		for (int i = 0; i < this.lines.size(); i++) {
-			if (lines.get(i).Tag == tagBinary) {
+			if (lines.get(i).Tag.equals(tagBinary)) {
 				lines.get(i).Data[Integer.parseInt(offsetBinary, 2)] = data;
 				return;
 			}
@@ -101,7 +99,7 @@ public class FullyAsosciativeCache extends TheBigCache implements Cache {
 			// remove the line
 			if (this.WriteBack && DirtyBit[0]) {
 				if (this.equals(hier.getLast())) {
-					String memAddress = lines.getFirst().Tag + indexBinary;
+					String memAddress = lines.getFirst().Tag;
 
 					// adding zeroes to adjust for missing offset bits in
 					// extracted address
@@ -161,10 +159,7 @@ public class FullyAsosciativeCache extends TheBigCache implements Cache {
 			word = "0" + word;
 		}
 		String tagBinary = word.substring(0, lengthTag);
-		String indexBinary = word.substring(lengthTag + 1, lengthTag
-				+ lengthIndex + 1);
 		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
-		int index = Integer.parseInt(indexBinary, 2);
 		// If i am removing a line from write back and it has a dirty bit
 		// then I need to move to lower levels writing till I reach an other
 		// write Back
@@ -185,7 +180,7 @@ public class FullyAsosciativeCache extends TheBigCache implements Cache {
 			// remove the line
 			if (this.WriteBack && DirtyBit[0]) {
 				if (this.equals(hier.getLast())) {
-					String memAddress = lines.getFirst().Tag + indexBinary;
+					String memAddress = lines.getFirst().Tag;
 
 					// adding zeroes to adjust for missing offset bits in
 					// extracted address
@@ -253,10 +248,7 @@ public class FullyAsosciativeCache extends TheBigCache implements Cache {
 			word = "0" + word;
 		}
 		String tagBinary = word.substring(0, lengthTag);
-		String indexBinary = word.substring(lengthTag + 1, lengthTag
-				+ lengthIndex + 1);
 		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
-		int index = Integer.parseInt(indexBinary, 2);
 
 		int c = -1;
 

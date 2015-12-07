@@ -61,19 +61,25 @@ public class StartCache {
 		
 		TheBigCache cache = new TheBigCache(s,l,1);
 		FullyAsosciativeCache a = new FullyAsosciativeCache(s,l,3);
-		FullyAsosciativeCache b = new FullyAsosciativeCache(s,l,1);
-		FullyAsosciativeCache c = new FullyAsosciativeCache(s,l,3);
+		DirectMappedCache b = new DirectMappedCache(s,l,1);
+		SetAssociative c = new SetAssociative(s,l,3);
 		//cache.hier.add(a);
 		//cache.hier.add(b);
 		//cache.hier.add(c);
 		
 		
-		//CacheLine temp = new CacheLine(new String[]{"yaaay","read","works"}, "000000");
+		
+		CacheLine fully = new CacheLine(new String[]{"yasser","read","works"}, "000000000000");
+		CacheLine temp2 = new CacheLine(new String[]{"yaaay","read","works"}, "000000");
+		CacheLine temp = new CacheLine(new String[]{"yasta", "el so7ab", "fi","agaza" },"000001");
 		//b.lines[0] = temp;
 		//c.cache[0].Lines[2] = temp;
+		a.lines.add(fully);
+		b.lines[0] = temp2;
+		
 
 		//cache.hier.get(0).Write(Integer.parseInt(add1,2), "adeeeeeeeeeek");
-		cache.Write(0, "yad");
+		cache.Write(1, "yad");
 		//cache.Write(Integer.parseInt(add3,2), "ya Doola");
 		//cache.Write(Integer.parseInt(add4,2), "el");
 		//cache.Write(Integer.parseInt(add5,2), "tary");
@@ -93,6 +99,6 @@ public class StartCache {
 //		memory.RAM.put(add19, "el3");
 //		memory.RAM.put(add20, "tary3");
 //		
-		System.out.println(cache.Read(0));
+		System.out.println(cache.Read(1));
 		}
 }
