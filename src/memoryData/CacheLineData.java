@@ -1,12 +1,12 @@
-package memoryWriteThroughOnly;
+package memoryData;
 
-public class CacheLine {
+public class CacheLineData {
 
 	boolean ValidBit;
 	String Tag;
 	String[] Data;
 	
-	public CacheLine(String[] Data, String Tag)
+	public CacheLineData(String[] Data, String Tag)
 	{
 		this.Tag = Tag;
 		this.Data = Data;

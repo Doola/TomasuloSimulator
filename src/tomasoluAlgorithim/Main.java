@@ -3,6 +3,7 @@ package tomasoluAlgorithim;
 import java.util.ArrayList;
 
 import sun.misc.Queue;
+import memory.*;
 
 public class Main {
 	static int ROBSize;
@@ -344,6 +345,16 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
+		
+		
+		
+		
+		// intialise memory we hakaza
+		int s = 16*1024;
+		int l = 16;
+		MainMemory memory = new MainMemory();
+		
+		
 
 		for (int i = 1; i <= cycle; i++) {
 			Fetch();
