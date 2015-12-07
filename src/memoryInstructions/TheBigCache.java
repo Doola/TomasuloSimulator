@@ -1,4 +1,4 @@
-package memory;
+package memoryInstructions;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

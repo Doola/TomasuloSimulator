@@ -1,6 +1,6 @@
-package memory;
+package memoryInstructions;
 
-import memory.CacheLine;
+import memoryInstructions.CacheLine;
 
 public class DirectMappedCache extends TheBigCache implements Cache {
 

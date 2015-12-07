@@ -1,4 +1,4 @@
-package memory;
+package memoryInstructions;
 
 public interface Cache {
 
