@@ -1,7 +1,6 @@
-package memoryInstructions;
+package memory;
 import sun.print.resources.serviceui;
-import memoryInstructions.TheBigCache;
-import memory.*;
+import memory.TheBigCache;
 
 public class StartCache {
 
@@ -71,11 +70,11 @@ public class StartCache {
 		
 		
 		CacheLine fully = new CacheLine(new String[]{"yasser","read","works"}, "000000000000");
-		CacheLine temp2 = new CacheLine(new String[]{"yaaay","read2","works"}, "000000");
+		CacheLine temp2 = new CacheLine(new String[]{"yaaay","read","works"}, "000000");
 		CacheLine temp = new CacheLine(new String[]{"yasta", "el so7ab", "fi","agaza" },"000001");
 		//b.lines[0] = temp;
 		//c.cache[0].Lines[2] = temp;
-		//a.lines.add(fully);
+		a.lines.add(fully);
 		b.lines[0] = temp2;
 		
 
