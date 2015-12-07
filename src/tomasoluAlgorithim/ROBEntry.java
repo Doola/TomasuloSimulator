@@ -3,12 +3,12 @@ package tomasoluAlgorithim;
 public class ROBEntry
 {
 	
-	Register Destination; 
-	String Value;
-	Boolean Ready;
-	Enum<ROBType> type;
-	int index ;
-	boolean WrongPrediction;
+	public Register Destination; 
+	public String Value;
+	public Boolean Ready;
+	public Enum<ROBType> type;
+	public int index ;
+	public boolean WrongPrediction;
 	boolean taken;
 	int PCBeforeBranch;
 	

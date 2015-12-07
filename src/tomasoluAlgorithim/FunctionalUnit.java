@@ -1,16 +1,16 @@
 package tomasoluAlgorithim;
 
 public class FunctionalUnit {
-	FunctionalUnitName name;
-	InstructionName operation;
-	boolean busy;
-	Register Vi, Vj;
+	public FunctionalUnitName name;
+	public InstructionName operation;
+	public boolean busy;
+	public Register Vi, Vj;
 	int imm;
-	int Qi, Qj, ROBDST, Address;
+	public int Qi, Qj, ROBDST, Address;
 	int cycles;
-	int destination;
+	public int destination;
 	int cyclesRemaining;
-	String value;
+	public String value;
 	int instructionPosition;
 
 	public FunctionalUnit(FunctionalUnitName name, InstructionName operation,

@@ -14,11 +14,11 @@ public class Main {
 	static int NumberOfReservationStations;
 	static int NumberOfRegisters;
 	static int NumberOfInstructions = 0;
-	static ROBEntry[] ROB = new ROBEntry[ROBSize];
-	static int head = 1;
-	static int tail = 1;
-	static FunctionalUnit[] ReservationStations = new FunctionalUnit[NumberOfReservationStations];
-	static int[] RegisterStatus = new int[NumberOfRegisters];
+	public static ROBEntry[] ROB = new ROBEntry[ROBSize];
+	public static int head = 1;
+	public static int tail = 1;
+	public static FunctionalUnit[] ReservationStations = new FunctionalUnit[NumberOfReservationStations];
+	public static int[] RegisterStatus = new int[NumberOfRegisters];
 	static Instruction[] ProgramCode = new Instruction[NumberOfInstructions];
 	static String[] InputProgramCode;
 	static boolean Issuing;
@@ -35,7 +35,7 @@ public class Main {
 	static TheBigCacheData dataCache;
 	static TheBigCache instructionCache;
 	static MainMemory memory = new MainMemory();
-	static String filePath = "";
+	public static String filePath = "";
 	static int ProgramStartAddress = 0; // to be intialised during program start
 	static int numbberOfInstructions;
 	static int PC;
@@ -123,10 +123,10 @@ public class Main {
 		return false;
 	}
 
-	public static void LoadDataToMemory(String filString, int startingAddress) {
+	public static void LoadDataToMemory(int startingAddress) {
 		ProgramParser parser = new ProgramParser();
 		try {
-			ArrayList<Instruction> programCode = parser.ReadProgram(filString);
+			ArrayList<Instruction> programCode = parser.ReadProgram(filePath);
 			// add these instructions to cache
 			// I need to know the address
 
@@ -518,7 +518,7 @@ public class Main {
 		 */
 
 		String filString = "/Users/ahmedabodeif1/Desktop/tomTest";
-		LoadDataToMemory(filString, 0);
+		LoadDataToMemory(0);
 		Fetch();
 		Fetch();
 		Fetch();
@@ -532,5 +532,13 @@ public class Main {
 		System.out.println(ProgramCode[0].toString());
 		// System.out.println(instructionCache.Read(0));
 		// System.out.println(instructionCache.Read(3));
+	}
+
+	public static void Cycle() throws IndexOutOfMemoryBoundsException, InterruptedException {
+		Fetch();
+		Issue();
+		Execute();
+		WriteBack();
+		//cycles++;
 	}
 }

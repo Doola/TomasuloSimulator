@@ -1,8 +1,8 @@
 package tomasoluAlgorithim;
 
 public class Register {
-	RegisterName Name;
-	String Value;
+	public RegisterName Name;
+	public String Value;
 
 	public Register(RegisterName Name, String Value) {
 		this.Name = Name;
