@@ -1,10 +1,11 @@
 package memoryData;
 
 import java.util.LinkedList;
+import memory.*;
 
 public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheData {
 
-	LinkedList<CacheLineData> lines;
+	public LinkedList<CacheLineData> lines;
 	boolean[] DirtyBit;
 	int maxNumberLines;
 
@@ -67,7 +68,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 	}
 
 	void addToCache(int wordAddress, String data)
-			throws IndexOutOfMemoryBoundsExceptionData {
+			throws IndexOutOfMemoryBoundsException {
 		String word = Integer.toBinaryString(wordAddress);
 		for (int i = word.length(); i <= 16; i++) {
 			word = "0" + word;
@@ -153,7 +154,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 	
 	
 	void addToCache(int wordAddress)
-			throws IndexOutOfMemoryBoundsExceptionData {
+			throws IndexOutOfMemoryBoundsException {
 		String word = Integer.toBinaryString(wordAddress);
 		for (int i = word.length(); i <= 16; i++) {
 			word = "0" + word;

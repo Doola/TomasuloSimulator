@@ -1,10 +1,11 @@
-package memory;
+package memoryInstructions;
 
 import java.util.LinkedList;
+import memory.*;
 
 public class FullyAsosciativeCache extends TheBigCache implements Cache {
 
-	LinkedList<CacheLine> lines;
+	public LinkedList<CacheLine> lines;
 	boolean[] DirtyBit;
 	int maxNumberLines;
 

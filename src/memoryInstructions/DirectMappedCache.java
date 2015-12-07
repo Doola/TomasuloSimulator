@@ -1,11 +1,12 @@
-package memory;
+package memoryInstructions;
 
-import memory.CacheLine;
+import memoryInstructions.CacheLine;
+import memory.*;
 
 public class DirectMappedCache extends TheBigCache implements Cache {
 
 	// array of data type cache lines, representing individal lines in the cache
-	CacheLine[] lines;
+	public CacheLine[] lines;
 	// to be used for write back
 	boolean[] DirtyBit;
 

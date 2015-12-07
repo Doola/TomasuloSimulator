@@ -1,10 +1,9 @@
-package memory;
+package memoryInstructions;
 
-import memory.Cache;
-import memory.CacheLine;
-import memory.IndexOutOfMemoryBoundsException;
-import memory.MainMemory;
-import memory.TheBigCache;
+import memoryInstructions.Cache;
+import memoryInstructions.CacheLine;
+import memoryInstructions.TheBigCache;
+import memory.*;
 
 public class SetAssociative extends TheBigCache implements Cache {
 	// final int MemSize = 65536;

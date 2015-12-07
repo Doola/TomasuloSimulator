@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 public class MainMemory {
 
-	static HashMap<String, String> RAM;
-	static double accessTime = 0.0;
+	public static HashMap<String, String> RAM;
+	public static double accessTime = 0.0;
 
 	public MainMemory() {
 		RAM = new HashMap<String, String>();
