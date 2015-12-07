@@ -11,7 +11,7 @@ public class FunctionalUnit {
 	int destination;
 	int cyclesRemaining;
 	String value;
-	
+	int instructionPosition;
 
 	public FunctionalUnit(FunctionalUnitName name, InstructionName operation,
 			boolean busy, Register Vi, Register Vj, int Qi, int Qj, int ROBDST,

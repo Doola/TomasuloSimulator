@@ -1,10 +1,13 @@
 package tomasoluAlgorithim;
 
+import java.io.IOException;
 import java.security.KeyRep.Type;
 import java.util.ArrayList;
 
 import sun.misc.Queue;
 import memory.*;
+import memoryData.*;
+import memoryInstructions.*;
 
 public class Main {
 	static int ROBSize;
@@ -32,6 +35,11 @@ public class Main {
 	static TheBigCacheData dataCache;
 	static TheBigCache instructionCache;
 	static MainMemory memory = new MainMemory();
+	static String filePath = "";
+	static int ProgramStartAddress = 0; // to be intialised during program start
+	static int numbberOfInstructions;
+	static int PC;
+	static int programCodeCounter = 0;
 
 	// static Queue ROBTable;
 	public Main() {
@@ -97,13 +105,60 @@ public class Main {
 		return false;
 	}
 
+	public static boolean CheckAddress(ROBEntry r, int a, FunctionalUnit f) {
+		for (int i = 1; i < f.destination; i++) {
+			if (a == Integer.parseInt(r.Destination.Value)
+					&& ROB[i].type.equals(ROBType.valueOf("SD")))
+				return false;
+		}
+
+		return true;
+	}
+
+	public static boolean StoreBeforeLoad(FunctionalUnit f) {
+		for (int i = f.instructionPosition; i > -1; i++) {
+			if (ProgramCode[i].Name.equals("SW"))
+				return true;
+		}
+		return false;
+	}
+
+	public static void LoadDataToMemory(String filString, int startingAddress) {
+		ProgramParser parser = new ProgramParser();
+		try {
+			ArrayList<Instruction> programCode = parser.ReadProgram(filString);
+			// add these instructions to cache
+			// I need to know the address
+
+			numbberOfInstructions = programCode.size();
+			CurrentInstruction = ProgramStartAddress;
+			memory.LoadToMemory(programCode, ProgramStartAddress);
+			ProgramCode = new Instruction[numbberOfInstructions];
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public static void Fetch() {
-		// get instruction from cache
-		// CurrentInstruction++;
+		if (programCodeCounter < numbberOfInstructions) {
+			try {
+				String instruction = instructionCache.Read(CurrentInstruction);
+				ProgramParser ps = new ProgramParser();
+				ArrayList<String> ls = new ArrayList<String>();
+				ls.add(instruction);
+				ArrayList<Instruction> temp = ps.processStream(ls);
+				ProgramCode[programCodeCounter] = temp.get(0);
+				programCodeCounter++;
+				CurrentInstruction++;
+			} catch (IndexOutOfMemoryBoundsException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static void Issue() {
-
 		// if beq and bne then instruction name is ADD
 		if (ProgramCode[CurrentInstruction].Name.equals("BEQ")
 				|| ProgramCode[CurrentInstruction].Name.equals("JMP")
@@ -136,6 +191,8 @@ public class Main {
 			ReservationStations[freeReservationStation].busy = true;
 
 			ReservationStations[freeReservationStation].operation = ProgramCode[CurrentInstruction].Name;
+
+			ReservationStations[freeReservationStation].instructionPosition = CurrentInstruction;
 
 			ReservationStations[freeReservationStation].destination = tail;
 
@@ -191,7 +248,7 @@ public class Main {
 				ReservationStations[freeReservationStation].Address = ProgramCode[CurrentInstruction].immediateValue;
 			}
 
-			CurrentInstruction++;
+			// CurrentInstruction++;
 
 			// BRAAAAANCH!!!!!!!!!!!!!!!!!!!
 			// / if its a beq,bne then if imm>0 pc+1 else if imm<0 pc +imm
@@ -258,7 +315,7 @@ public class Main {
 		return null;
 	}
 
-	public static void Execute() {
+	public static void Execute() throws IndexOutOfMemoryBoundsException {
 		// loop over all functions in RS and execute them if operands are ready
 		// execute: calculate the number of cycles need to finish execution/
 		// add to write array
@@ -277,15 +334,27 @@ public class Main {
 
 						}
 					} else if (ReservationStations[i].operation.equals("LW")) {
-						if (ReservationStations[i].Qi == 0 /* && no stores */) {
+						if (ReservationStations[i].Qi == 0
+								&& !StoreBeforeLoad(ReservationStations[i])/*
+																			 * &&
+																			 * no
+																			 * stores
+																			 */) {
 							// calculate value
 
 							ReservationStations[i].Address = ReservationStations[i].Address
 									+ Integer
 											.parseInt(ReservationStations[i].Vi.Value);
-							// check all stores have ROB have diff address
-							// read from Memory
-							// MEM[ReservationStations[i].Address] DOOLA and
+							if (CheckAddress(
+									ROB[ReservationStations[i].destination],
+									ReservationStations[i].Address,
+									ReservationStations[i]))
+
+							{
+								ROB[ReservationStations[i].destination].Value = dataCache
+										.Read(ReservationStations[i].Address);
+							}
+
 							// store in rd
 						}
 					} else if (ReservationStations[i].operation.equals("JMP")
@@ -348,7 +417,7 @@ public class Main {
 	public static void Commit() throws NumberFormatException,
 			IndexOutOfMemoryBoundsException {
 		// wrong prediction
-		for (int i = 0; i < ROB.length; i++) {
+		for (int i = 1; i < ROB.length; i++) {
 			if (ROB[i].Ready && head == i) {
 				if (!ROB[i].WrongPrediction) {
 					// save value in Memory/REG then (cahce)
@@ -360,6 +429,13 @@ public class Main {
 						dataCache.Write(
 								Integer.parseInt(ROB[i].Destination.Value),
 								ROB[i].Value);
+					}
+					if (ROB[i].type.equals(ROBType.valueOf("LD"))) {
+
+						String s = ROB[i].Destination.toString().substring(1);
+						int registerIndex = Integer.parseInt(s);
+
+						RegisterFile[registerIndex].Value = ROB[i].Value;
 					}
 					ROB[i].Ready = false;
 					String s = ROB[i].Destination.toString().substring(1);
@@ -392,10 +468,10 @@ public class Main {
 
 	}
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException,
+			IndexOutOfMemoryBoundsException {
 
 		// intialise memory we hakaza
-
 
 		int s = 16 * 1024;
 		int l = 16;
@@ -431,30 +507,30 @@ public class Main {
 		// b.lines[0] = temp;
 		// c.cache[0].Lines[2] = temp;
 		// a.lines.add(fully);
-		b2.lines[0] = temp22;
+		// b2.lines[0] = temp22;
 
-		try {
-			dataCache.Write(1, "yad");
-			System.out.println(instructionCache.Read(1));
-		} catch (IndexOutOfMemoryBoundsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		/*
+		 * for (int i = 1; i <= cycle; i++) { Fetch(); Issue(); Execute();
+		 * WriteBack(); // cycles++; }s
+		 * 
+		 * if (NrOfBranches != 0) { int TotatlMisprediction =
+		 * NrOfBranchesMispredicted / NrOfBranches; }
+		 */
 
-		// intialise memory we hakaza
-
-		dataCache = new TheBigCacheData(16 * 1024, 16, 1);
-
-		for (int i = 1; i <= cycle; i++) {
-			Fetch();
-			Issue();
-			Execute();
-			WriteBack();
-			// cycles++;
-		}
-
-		if (NrOfBranches != 0) {
-			int TotatlMisprediction = NrOfBranchesMispredicted / NrOfBranches;
-		}
+		String filString = "/Users/ahmedabodeif1/Desktop/tomTest";
+		LoadDataToMemory(filString, 0);
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		Fetch();
+		
+		System.out.println(ProgramCode[0].toString());
+		// System.out.println(instructionCache.Read(0));
+		// System.out.println(instructionCache.Read(3));
 	}
 }
