@@ -31,6 +31,8 @@ public class Main {
 	static int NrOfBranches=0;
 	static int NrOfBranchesMispredicted=0;
 	static int cycle;
+	
+	static TheBigCacheData dataCache;
 
 	// static Queue ROBTable;
 	public Main() {
@@ -295,7 +297,7 @@ public class Main {
 				ROB[temp.destination].Value = temp.value;
 				// if store
 				if (temp.name.equals("STORE") && temp.Qj == 0)
-					ROB[temp.destination].Value = temp.Vj;
+					ROB[temp.destination].Value = temp.Vj.Name.toString();
 				
 				ROB[temp.destination].Ready = true;
 
@@ -316,7 +318,7 @@ public class Main {
 
 	}
 
-	public static void Commit() {
+	public static void Commit() throws NumberFormatException, IndexOutOfMemoryBoundsException {
 		// wrong prediction
 		for (int i = 0; i < ROB.length; i++) {
 			if (ROB[i].Ready && head == i) {
@@ -325,9 +327,9 @@ public class Main {
 					// if store , Des= address, in memory ,Mem[rob.Dest]=value (DONE)
 					// all operations save rob[i].value in dest register/memory
 					// in caches
-					if(ROB[i].Type.equals(Type.valueOf("SD")))
+					if(ROB[i].type.equals(Type.valueOf("SD")))
 					{
-						dataCache.Write(ROB[i].Destination,ROB[i].Value);
+						dataCache.Write(Integer.parseInt(ROB[i].Destination.Value),ROB[i].Value);
 					}
 					ROB[i].Ready = false;
 					String s = ROB[i].Destination.toString().substring(1);
