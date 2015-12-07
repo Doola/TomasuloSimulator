@@ -1,11 +1,10 @@
 package memoryData;
 import sun.print.resources.serviceui;
 import memoryData.TheBigCacheData;
-import memory.*;
 
 public class StartCacheData {
 
-	public static void main(String[]args) throws NumberFormatException, IndexOutOfMemoryBoundsException{
+	public static void main(String[]args) throws NumberFormatException, IndexOutOfMemoryBoundsExceptionData{
 		int s = 16*1024;
 		int l = 16;
 		
@@ -75,7 +74,7 @@ public class StartCacheData {
 		CacheLineData temp = new CacheLineData(new String[]{"yasta", "el so7ab", "fi","agaza" },"000001");
 		//b.lines[0] = temp;
 		//c.cache[0].Lines[2] = temp;
-		a.lines.add(fully);
+		//a.lines.add(fully);
 		b.lines[0] = temp2;
 		
 

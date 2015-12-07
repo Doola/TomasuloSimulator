@@ -1,4 +1,4 @@
-package memoryInstructions;
+package memory;
 
 public class CacheLine {
 

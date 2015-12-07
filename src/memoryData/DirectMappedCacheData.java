@@ -1,12 +1,11 @@
 package memoryData;
 
 import memoryData.CacheLineData;
-import memory.*;
 
 public class DirectMappedCacheData extends TheBigCacheData implements CacheData {
 
 	// array of data type cache lines, representing individal lines in the cache
-	public CacheLineData[] lines;
+	CacheLineData[] lines;
 	// to be used for write back
 	boolean[] DirtyBit;
 
@@ -29,7 +28,7 @@ public class DirectMappedCacheData extends TheBigCacheData implements CacheData 
 	}
 
 	// called only when we know that certain line needs to be pushed to cache
-	void addToCache(int wordAddress) throws IndexOutOfMemoryBoundsException {
+	void addToCache(int wordAddress) throws IndexOutOfMemoryBoundsExceptionData {
 		// get index and place cache line at given index
 		// must check for write back and dirty bit
 		// if the line's valid bit is false then skip all steps and just add it
@@ -121,7 +120,7 @@ public class DirectMappedCacheData extends TheBigCacheData implements CacheData 
 		this.lines[index] = temp;
 	}
 
-	void addToCache(int wordAddress, String data) throws IndexOutOfMemoryBoundsException {
+	void addToCache(int wordAddress, String data) throws IndexOutOfMemoryBoundsExceptionData {
 		String word = Integer.toBinaryString(wordAddress);
 		for (int i = word.length(); i <= 16; i++) {
 			word = "0" + word;

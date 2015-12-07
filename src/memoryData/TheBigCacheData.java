@@ -2,7 +2,6 @@ package memoryData;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import memory.*;
 
 public class TheBigCacheData implements CacheData{
 	int Size, BlockSize, assosciativity, lengthIndex,
@@ -28,7 +27,7 @@ public class TheBigCacheData implements CacheData{
 	{
 		
 	}
-	public String Read(int wordAddress) throws IndexOutOfMemoryBoundsException{
+	public String Read(int wordAddress) throws IndexOutOfMemoryBoundsExceptionData{
 		// Loop through all levels of cache till we find the word is found
 		for (int i = 0; i < hier.size(); i++) 
 		{			 
@@ -73,7 +72,7 @@ public class TheBigCacheData implements CacheData{
 	// because the size of blocks is different from level to level.
 	
 	
-	public boolean Write(int wordAddress, String data) throws IndexOutOfMemoryBoundsException {
+	public boolean Write(int wordAddress, String data) throws IndexOutOfMemoryBoundsExceptionData {
 		
 		for (int i = 0; i < hier.size(); i++) {
 			if(hier.get(i).Write(wordAddress, data))
@@ -115,13 +114,13 @@ public class TheBigCacheData implements CacheData{
 	}
 	
 
-	void addToCache(int wordAddress,String data) throws IndexOutOfMemoryBoundsException
+	void addToCache(int wordAddress,String data) throws IndexOutOfMemoryBoundsExceptionData
 	{
 		for(int i=0; i<hier.size(); i++)
 			hier.get(i).addToCache(wordAddress,data);
 	}
 	
-	void addToCache(int wordAddress) throws IndexOutOfMemoryBoundsException
+	void addToCache(int wordAddress) throws IndexOutOfMemoryBoundsExceptionData
 	{
 		// I need to check when I remove data if this is a write back then
 		// 

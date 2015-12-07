@@ -4,9 +4,7 @@ import java.security.KeyRep.Type;
 import java.util.ArrayList;
 
 import sun.misc.Queue;
-import memoryInstructions.*;
 import memory.*;
-import memoryData.*;
 
 public class Main {
 	static int ROBSize;
@@ -360,51 +358,12 @@ public class Main {
 		
 		
 		// intialise memory we hakaza
-		
-		MainMemory memory = new MainMemory();
-		
 		int s = 16*1024;
 		int l = 16;
+		MainMemory memory = new MainMemory();
+		TheBigCacheData dataCache= new TheBigCacheData ();
+		
 
-
-		// Data Cache
-		TheBigCacheData cache = new TheBigCacheData(s,l,1);
-		FullyAsosciativeCacheData a = new FullyAsosciativeCacheData(s,l,3);
-		DirectMappedCacheData b = new DirectMappedCacheData(s,l,1);
-		SetAssociativeData c = new SetAssociativeData(s,l,3);
-		CacheLineData fully = new CacheLineData(new String[]{"yasser","read","works"}, "000000000000");
-		CacheLineData temp2 = new CacheLineData(new String[]{"yaaay","read2","works"}, "000000");
-		CacheLineData temp = new CacheLineData(new String[]{"yasta", "el so7ab", "fi","agaza" },"000001");
-		//b.lines[0] = temp;
-		c.cache[0].Lines[2] = temp;
-		a.lines.add(fully);
-		b.lines[0] = temp2;
-		
-		// Instruction Cache
-
-		
-		TheBigCache cache2 = new TheBigCache(s,l,1);
-		FullyAsosciativeCache a2 = new FullyAsosciativeCache(s,l,3);
-		DirectMappedCache b2 = new DirectMappedCache(s,l,1);
-		SetAssociative c2 = new SetAssociative(s,l,3);
-		CacheLine fully2 = new CacheLine(new String[]{"yasser","read","works"}, "000000000000");
-		CacheLine temp22 = new CacheLine(new String[]{"yaaay","read2","works"}, "000000");
-		CacheLine temp1 = new CacheLine(new String[]{"yasta", "el so7ab", "fi","agaza" },"000001");
-		//b.lines[0] = temp;
-		//c.cache[0].Lines[2] = temp;
-		//a.lines.add(fully);
-		b2.lines[0] = temp22;
-		
-		
-		try {
-			cache.Write(1, "yad");
-			System.out.println(cache2.Read(1));
-		} catch (IndexOutOfMemoryBoundsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		/*
 		for (int i = 1; i <= cycle; i++) {
 			Fetch();
 			Issue();
@@ -416,6 +375,5 @@ public class Main {
 		if (NrOfBranches!=0){	
 		int TotatlMisprediction = NrOfBranchesMispredicted/NrOfBranches;
 		}
-		*/
 	}
 }

@@ -1,4 +1,4 @@
-package memory;
+package memoryData;
 
 import java.util.HashMap;
 
@@ -20,10 +20,10 @@ public class MainMemory {
 	}
 
 	public static void Insert(String address, String[] data, int blockSize)
-			throws IndexOutOfMemoryBoundsException {
+			throws IndexOutOfMemoryBoundsExceptionData {
 		// If the address given is out of memory then throw exception.
 		if (Integer.parseInt(address, 2) + blockSize > 65535) {
-			throw new IndexOutOfMemoryBoundsException();
+			throw new IndexOutOfMemoryBoundsExceptionData();
 		}
 		// Adding data to memory in order.
 		int add = Integer.parseInt(address, 2);
