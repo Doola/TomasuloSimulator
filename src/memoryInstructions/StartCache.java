@@ -1,6 +1,7 @@
 package memoryInstructions;
 import sun.print.resources.serviceui;
 import memoryInstructions.TheBigCache;
+import memory.*;
 
 public class StartCache {
 
@@ -79,7 +80,7 @@ public class StartCache {
 		
 
 		//cache.hier.get(0).Write(Integer.parseInt(add1,2), "adeeeeeeeeeek");
-		//cache.Write(1, "yad");
+		cache.Write(1, "yad");
 		//cache.Write(Integer.parseInt(add3,2), "ya Doola");
 		//cache.Write(Integer.parseInt(add4,2), "el");
 		//cache.Write(Integer.parseInt(add5,2), "tary");

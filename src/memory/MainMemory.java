@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 public class MainMemory {
 
-	static HashMap<String, String> RAM;
-	static double accessTime = 0.0;
+	public static HashMap<String, String> RAM;
+	public static double accessTime = 0.0;
 
 	public MainMemory() {
 		RAM = new HashMap<String, String>();
@@ -20,10 +20,10 @@ public class MainMemory {
 	}
 
 	public static void Insert(String address, String[] data, int blockSize)
-			throws IndexOutOfMemoryBoundsExceptionData {
+			throws IndexOutOfMemoryBoundsException {
 		// If the address given is out of memory then throw exception.
 		if (Integer.parseInt(address, 2) + blockSize > 65535) {
-			throw new IndexOutOfMemoryBoundsExceptionData();
+			throw new IndexOutOfMemoryBoundsException();
 		}
 		// Adding data to memory in order.
 		int add = Integer.parseInt(address, 2);

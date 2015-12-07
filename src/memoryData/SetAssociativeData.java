@@ -2,9 +2,8 @@ package memoryData;
 
 import memoryData.CacheData;
 import memoryData.CacheLineData;
-import memoryData.IndexOutOfMemoryBoundsExceptionData;
-import memoryData.MainMemory;
 import memoryData.TheBigCacheData;
+import memory.*;
 
 public class SetAssociativeData extends TheBigCacheData implements CacheData {
 	// final int MemSize = 65536;
@@ -39,7 +38,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 	}
 
 	// called only when we know that certain line needs to be pushed to cache
-	void addToCache(int wordAddress) throws IndexOutOfMemoryBoundsExceptionData {
+	void addToCache(int wordAddress) throws IndexOutOfMemoryBoundsException {
 		// get index and place cache line at given index
 		// must check for write back and dirty bit
 		// if the line's valid bit is false then skip all steps and just add it
@@ -141,7 +140,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 
 	
 	void addToCache(int wordAddress, String data)
-			throws IndexOutOfMemoryBoundsExceptionData {
+			throws IndexOutOfMemoryBoundsException {
 		
 		
 		// get index and place cache line at given index

@@ -2,6 +2,7 @@ package memoryInstructions;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import memory.*;
 
 public class TheBigCache implements Cache{
 	int Size, BlockSize, assosciativity, lengthIndex,

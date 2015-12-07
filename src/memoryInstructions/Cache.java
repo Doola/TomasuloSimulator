@@ -1,4 +1,5 @@
 package memoryInstructions;
+import memory.*;
 
 public interface Cache {
 
