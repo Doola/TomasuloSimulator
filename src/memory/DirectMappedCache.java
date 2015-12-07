@@ -276,5 +276,8 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		int index = Integer.parseInt(indexBinary, 2);
 		
 		lines[index].Data = data;
+		lines[index].Tag = tagBinary;
+		if(this.WriteBack)
+			this.DirtyBit[index] = true;
 	}
 }

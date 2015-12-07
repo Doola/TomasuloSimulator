@@ -1,4 +1,5 @@
 package memory;
+import sun.print.resources.serviceui;
 import memory.TheBigCache;
 
 public class StartCache {
@@ -59,17 +60,17 @@ public class StartCache {
 		
 		
 		TheBigCache cache = new TheBigCache(s,l,1);
-		DirectMappedCache a = new DirectMappedCache(s,l,1);
-		DirectMappedCache b = new DirectMappedCache(s,l,1);
-		DirectMappedCache c = new DirectMappedCache(s,l,1);
-		cache.hier.add(a);
+		FullyAsosciativeCache a = new FullyAsosciativeCache(s,l,3);
+		FullyAsosciativeCache b = new FullyAsosciativeCache(s,l,1);
+		FullyAsosciativeCache c = new FullyAsosciativeCache(s,l,3);
+		//cache.hier.add(a);
 		//cache.hier.add(b);
 		//cache.hier.add(c);
 		
 		
-		CacheLine temp = new CacheLine(new String[]{"yaaay","read","works"}, "000000");
-		//a.lines[0] = temp;
-		c.lines[0] = temp;
+		//CacheLine temp = new CacheLine(new String[]{"yaaay","read","works"}, "000000");
+		//b.lines[0] = temp;
+		//c.cache[0].Lines[2] = temp;
 
 		//cache.hier.get(0).Write(Integer.parseInt(add1,2), "adeeeeeeeeeek");
 		cache.Write(0, "yad");
@@ -78,7 +79,7 @@ public class StartCache {
 		//cache.Write(Integer.parseInt(add5,2), "tary");
 		//cache.Write(Integer.parseInt(add6,2), "adeeeeeeeeeek1");
 //		memory.RAM.put(add7, "yad1");
-//		memory.RAM.put(add8, "ya Doola1");
+//		memory..put(add8, "ya Doola1");
 //		memory.RAM.put(add9, "el1");
 //		memory.RAM.put(add10, "tary1");
 //		memory.RAM.put(add11, "adeeeeeeeeeek2");
