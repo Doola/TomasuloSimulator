@@ -352,7 +352,9 @@ public class Main {
 			WriteBack();
 			// cycles++;
 		}
-			
+		
+		if (NrOfBranches!=0){	
 		int TotatlMisprediction = NrOfBranchesMispredicted/NrOfBranches;
+		}
 	}
 }
