@@ -10,6 +10,7 @@ public class TheBigCache implements Cache{
 	double accessTime, numberOfMisses, numberOfAccesses;
 	boolean WriteBack, WriteThrough;
 	
+	static int TotalCycles = 0;
 	static LinkedList<TheBigCache> hier = new LinkedList<TheBigCache>();
 	static int currentCachePosition = 0;
 
