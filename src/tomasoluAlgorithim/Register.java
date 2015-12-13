@@ -8,4 +8,9 @@ public class Register {
 		this.Name = Name;
 		this.Value = Value;
 	}
+	
+	public String toString(){
+		return " Name ===> " + this.Name +
+				" \nValue ===> " + this.Value;
+	}
 }

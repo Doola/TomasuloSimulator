@@ -12,6 +12,11 @@ import javax.swing.JFileChooser;
  * and open the template in the editor.
  */
 
+
+
+import memory.IndexOutOfMemoryBoundsException;
+import tomasoluAlgorithim.Main;
+
 /**
  *
  * @author dell
@@ -20,16 +25,21 @@ public class Base extends javax.swing.JFrame {
     String LevelsOfCache;
     int CacheLevel;
     String filename;
-    String [] Jcomb1;
+    public static String [] Jcomb1;
     String CacheDetails;
     int RevStationSize;
-    int MemoryAccessTime,NoOfLoads,NoOfStores,NoOfAdds,NoOfMults;
+    int MemoryAccessTime;
+	public static int NoOfLoads;
+	public static  int NoOfStores;
+	public static int NoOfAdds;
+	public static int NoOfMults;
     String Write;
     /**
      * Creates new form Base
      */
     public Base() {
         this.setTitle("Tomasulo Simulator");
+        Jcomb1= new String[10];
         initComponents();
     }
 
@@ -87,7 +97,15 @@ public class Base extends javax.swing.JFrame {
         jButton2.setText("Run");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                try {
+					jButton2ActionPerformed(evt);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IndexOutOfMemoryBoundsException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
 
@@ -378,6 +396,16 @@ public class Base extends javax.swing.JFrame {
         System.out.println("cake");
         CacheDetails= jTextField3.getText();
         jComboBox1.insertItemAt(CacheDetails,0);
+        boolean x=false;
+        int i=0;
+        while (!x &&i<10 ){
+        	if (Jcomb1[i]==null){
+        		x=true;
+        		Jcomb1[i]=CacheDetails;
+        		i++;
+        	}
+        	i++;
+        }
     }                                        
 
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {                                            
@@ -390,8 +418,9 @@ public class Base extends javax.swing.JFrame {
 
     }                                        
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) throws InterruptedException, IndexOutOfMemoryBoundsException {                                         
         // TODO add your handling code here:
+    	new Main();
         Front front= new  Front(filename,LevelsOfCache,CacheLevel,Jcomb1,CacheDetails,RevStationSize, MemoryAccessTime, NoOfLoads,  NoOfStores, NoOfAdds, NoOfMults ); 
         front.setVisible(true);
         this.setVisible(false);

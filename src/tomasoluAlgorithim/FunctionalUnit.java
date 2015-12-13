@@ -26,6 +26,25 @@ public class FunctionalUnit {
 		this.Qj = Qj;
 		this.busy = busy;
 		this.destination = destination;
-		this.imm=imm;
+		this.imm = imm;
 	}
+	
+	public FunctionalUnit(FunctionalUnitName name)
+	{
+		this.name = name;
+	}
+	
+	
+	
+	public String toString() {
+		return "--------------------------------------------\n" + "name ===> "
+				+ this.name + "\nAddress ===> " + this.Address + "\nVi ===> "
+				+ this.Vi + "\nVj ===> " + this.Vj + "\nOperation ===> "
+				+ this.operation + "\nROB Destination ===> " + this.ROBDST
+				+ "\nQi ===> " + this.Qi + "\nQj ===> " + this.Qj + "\nBusy ===>"
+				+ this.busy + "\nDestination ===>" + this.destination
+				+ "\nImmediate ===> " + this.imm
+				+ "\n--------------------------------------------";
+	}
+	
 }

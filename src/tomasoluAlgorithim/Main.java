@@ -3,7 +3,9 @@ package tomasoluAlgorithim;
 import java.io.IOException;
 import java.security.KeyRep.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import GUI.Base;
 import sun.misc.Queue;
 import memory.*;
 import memoryData.*;
@@ -35,21 +37,59 @@ public class Main {
 	static TheBigCacheData dataCache;
 	static TheBigCache instructionCache;
 	static MainMemory memory = new MainMemory();
-	public static String filePath = "";
+	public static String filePath = "/Users/ahmedabodeif1/Desktop/tomTest";
 	static int ProgramStartAddress = 0; // to be intialised during program start
 	static int numbberOfInstructions;
 	static int PC;
 	static int programCodeCounter = 0;
+	int MemoryAccessTime,NoOfLoads,NoOfStores,NoOfAdds,NoOfMults;
+    static String [] Jcomb1;
 
 	// static Queue ROBTable;
-	public Main() {
-		for (int i = 1; i < 32; i++) {
+	public Main() throws InterruptedException, IndexOutOfMemoryBoundsException 
+	{
+		
+		this.NoOfLoads= Base.NoOfLoads;
+		this.NoOfStores= Base.NoOfStores;
+		this.NoOfAdds= Base.NoOfAdds;
+		this.NoOfMults=Base.NoOfMults;
+		this.Jcomb1= Base.Jcomb1; //s,l,m,cache mem access time,write policy
+		
+		
+		System.out.println(Arrays.toString(Jcomb1));
+		System.out.println(NoOfMults);
+		main(null);
+		for (int i = 1; i < 32; i++) 
+		{
 			RegisterFile[i] = new Register(RegisterName.valueOf("R" + i), "");
 		}
 		RegisterFile[0] = new Register(RegisterName.valueOf("R0"), "0");
-
+		
+		//K.F.C
+		NumberOfReservationStations= NoOfLoads+NoOfStores+NoOfAdds+NoOfMults;
+		System.out.println("No of res stations"+ NumberOfReservationStations);
+		ReservationStations= new FunctionalUnit[NumberOfReservationStations];
+		int i=0;
+	
+		while (i<NoOfLoads){// FIX By creating new values.
+			System.out.println("NoOfloadsWhileEtered");
+			ReservationStations[i]= new FunctionalUnit(FunctionalUnitName.LOAD);
+			i++;
+		}
+		while (i<NoOfLoads+NoOfStores){
+			ReservationStations[i]= new FunctionalUnit(FunctionalUnitName.STORE);
+			i++;
+		}
+		while (i<NoOfLoads+NoOfStores+NoOfAdds){
+			ReservationStations[i]= new FunctionalUnit(FunctionalUnitName.ADD);
+			i++;
+		}
+		while (i<NumberOfReservationStations){
+			ReservationStations[i]= new FunctionalUnit(FunctionalUnitName.MULT);
+			i++;
+		}
+		
 	}
-
 	public static void Intialise() {
 		// numberOfInstructions = ????
 		TheBigTable = (ArrayList<Stage>[]) new ArrayList[NumberOfInstructions];
@@ -151,7 +191,7 @@ public class Main {
 				ArrayList<Instruction> temp = ps.processStream(ls);
 				ProgramCode[programCodeCounter] = temp.get(0);
 				programCodeCounter++;
-				CurrentInstruction++;
+				
 			} catch (IndexOutOfMemoryBoundsException e) {
 				e.printStackTrace();
 			}
@@ -185,6 +225,8 @@ public class Main {
 
 		// If this reservation station is not busy insert instruction in it's
 		// correct FU.
+		if(freeReservationStation != -1)
+		{
 		if ((!ReservationStations[freeReservationStation].busy && head != tail)
 				|| first) {
 			first = false;
@@ -248,7 +290,7 @@ public class Main {
 				ReservationStations[freeReservationStation].Address = ProgramCode[CurrentInstruction].immediateValue;
 			}
 
-			// CurrentInstruction++;
+			 CurrentInstruction++;
 
 			// BRAAAAANCH!!!!!!!!!!!!!!!!!!!
 			// / if its a beq,bne then if imm>0 pc+1 else if imm<0 pc +imm
@@ -270,6 +312,7 @@ public class Main {
 			if (tail > ROBSize)
 				tail = 1;
 		}
+	  }//// if condition i just added
 	}
 
 	// Called in execute to do the actual operation
@@ -469,12 +512,44 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws InterruptedException,
-			IndexOutOfMemoryBoundsException {
-
+			IndexOutOfMemoryBoundsException
+	{
+		Main m= new Main();	
+		
 		// intialise memory we hakaza
-
-		int s = 16 * 1024;
-		int l = 16;
+				int s = 16 * 1024;
+				int l = 16;
+				// KF. 
+				dataCache = new TheBigCacheData(s,l,1);
+	    for (int i=0; i<Jcomb1.length; i++)
+		{
+			String cacheDetails= Jcomb1[i].substring(1,Jcomb1.length+1);
+			String [] CacheFullDetails= cacheDetails.split(",");
+		    System.out.println(cacheDetails);
+		    System.out.println(Arrays.toString(CacheFullDetails));
+		    
+		    // CacheFullDetails[0] = S
+		    // CacheFullDetails[1] = L
+		    // CacheFullDetails[2] = M
+		    
+		    
+		    // fully Asos
+		    if(Integer.parseInt(CacheFullDetails[1]) ==  Integer.parseInt(CacheFullDetails[2])){
+		    	
+		    }
+		    else {
+		    	// direct mapped
+		    	if(Integer.parseInt(CacheFullDetails[2]) == 1){
+		    		
+		    	}
+		    	// set asos
+		    	else{
+		    		
+		    	}
+		    }
+		    
+		    /////
+		}
 
 		// Data Cache
 		dataCache = new TheBigCacheData(s, l, 1);
@@ -493,7 +568,6 @@ public class Main {
 		b.lines[0] = temp2;
 
 		// Instruction Cache
-
 		instructionCache = new TheBigCache(s, l, 1);
 		FullyAsosciativeCache a2 = new FullyAsosciativeCache(s, l, 3);
 		DirectMappedCache b2 = new DirectMappedCache(s, l, 1);
@@ -519,26 +593,66 @@ public class Main {
 
 		String filString = "/Users/ahmedabodeif1/Desktop/tomTest";
 		LoadDataToMemory(0);
-		Fetch();
-		Fetch();
-		Fetch();
-		Fetch();
-		Fetch();
-		Fetch();
-		Fetch();
-		Fetch();
-		Fetch();
-		
+		//Fetch();
+		Cycle();
 		System.out.println(ProgramCode[0].toString());
 		// System.out.println(instructionCache.Read(0));
 		// System.out.println(instructionCache.Read(3));
 	}
 
-	public static void Cycle() throws IndexOutOfMemoryBoundsException, InterruptedException {
+	public static void Cycle() throws IndexOutOfMemoryBoundsException,
+			InterruptedException {
+		
 		Fetch();
 		Issue();
+		
+		printROB();
+		printReservationStations();
+		printRegisterFile();
+		printRegisterStatus();
+		
 		Execute();
 		WriteBack();
-		//cycles++;
+		Commit();
+		// cycles++;
 	}
+
+	public static void printROB() {
+
+		System.out.println("===============================================");
+		for (int i = 0; i < ROBSize; i++) {
+			System.out.println(ROB[i].toString());
+		}
+		System.out.println("===============================================");
+
+	}
+
+	public static void printReservationStations() {
+
+		System.out.println("===============================================");
+		for (int i = 0; i < NumberOfReservationStations; i++) {
+			System.out.println(ReservationStations[i].toString());
+		}
+		System.out.println("===============================================");
+
+	}
+
+	public static void printRegisterFile() {
+		System.out.println("===============================================");
+		for (int i = 1; i < RegisterFile.length; i++) {
+			System.out.println(RegisterFile[i].toString());
+		}
+		System.out.println("===============================================");
+	}
+
+	public static void printRegisterStatus() {
+		
+		System.out.println("===============================================");
+		for (int i = 0; i < RegisterStatus.length; i++) {
+			System.out.println("R" + i + "--->" + RegisterStatus[i]);
+		}
+		System.out.println("===============================================");
+
+	}
+
 }

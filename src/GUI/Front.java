@@ -51,11 +51,6 @@ public class Front extends javax.swing.JFrame {
     	this.NoOfAdds=NoOfAdds;
     	this.NoOfMults=NoOfMults;
     	
-    	
-    	
-    	
-    	
-    	
     	populateROB();
     	populateReservationStation();
     	populateRegisterStatus();
