@@ -5,7 +5,8 @@ import memory.*;
 
 public class DirectMappedCacheData extends TheBigCacheData implements CacheData {
 
-	// array of data type cache lines, representing individual lines in the cache
+	// array of data type cache lines, representing individual lines in the
+	// cache
 	public CacheLineData[] lines;
 	// to be used for write back
 	boolean[] DirtyBit;
@@ -156,7 +157,7 @@ public class DirectMappedCacheData extends TheBigCacheData implements CacheData 
 		// then I need to move to lower levels writing till I reach an other
 		// write Back
 		// or the memory
-		
+
 		if (lines[index].ValidBit) {
 			if (this.WriteBack && DirtyBit[index])
 				try {
@@ -231,12 +232,12 @@ public class DirectMappedCacheData extends TheBigCacheData implements CacheData 
 		newData[Integer.parseInt(offsetBinary, 2)] = data;
 		CacheLineData temp = new CacheLineData(newData, tagBinary);
 		this.lines[index] = temp;
-		
+
 		// This access is counted as a hit since a miss was already recorded
 		// when we called write from the parent method but did not find
 		// the word address.
 		this.numberOfAccesses++;
-		
+
 	}
 
 	@Override
@@ -338,25 +339,32 @@ public class DirectMappedCacheData extends TheBigCacheData implements CacheData 
 		this.numberOfAccesses++;
 
 	}
-	
-	public double hitRatio(){
-		return (this.numberOfAccesses - this.numberOfMisses) / this.numberOfAccesses;
+
+	public double hitRatio() {
+		return (this.numberOfAccesses - this.numberOfMisses)
+				/ this.numberOfAccesses;
 	}
 	
-	public int getNumberOfAccess(){
-		return (int)this.numberOfAccesses;
+	public double getMissRatio(){
+		return this.numberOfMisses / this.numberOfAccesses;
 	}
-	
-	public int getNumberOfMisses(){
-		return (int)this.numberOfMisses;
+
+	public int getNumberOfAccess() {
+		return (int) this.numberOfAccesses;
 	}
-	
-	public String getStatistics(){
-		return "--------------------------------------------------------\n" +
-				"The number of Accesses is: " + this.getNumberOfAccess() + "\n"
-				+ "The number of misses is: " + this.getNumberOfMisses() + "\n"
-				+ "The hit ratio is: " + this.getHitRatio() + 
-				"\n--------------------------------------------------------";
+
+	public int getNumberOfMisses() {
+		return (int) this.numberOfMisses;
 	}
-	
+
+	public String getStatistics() {
+		return "--------------------------------------------------------\n"
+				+ "The number of Accesses is: " + this.getNumberOfAccess()
+				+ "\n" + "The number of misses is: " + this.getNumberOfMisses()
+				+ "\n" + "The hit ratio is: " + this.getHitRatio()
+				+ "\n" + "The miss ratio is: " + this.getMissRatio()
+				+ "\nThe access time is: " + this.accessTime
+				+ "\n--------------------------------------------------------";
+	}
+
 }

@@ -2,6 +2,7 @@ package memoryInstructions;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+
 import memory.*;
 
 public class TheBigCache implements Cache{
@@ -138,5 +139,27 @@ public class TheBigCache implements Cache{
 	public void WriteData(int wordAddress, String[] data){
 		
 	}
+	
+	public double getAverageMemoryAccessTime() {
+		// loop over caches applying the formula
+		// AMAT = hitTime + (missRate * AverageMissPenalty[n])
+		// AverageMissPenalty[n] = hitTime[n] + (missRate[n] *
+		// AverageMissPenalty[n+1])
+
+		double amat = 0;
+		double penalty = hier.get(hier.size() - 1).accessTime
+				+ ((hier.get(hier.size() - 1).numberOfMisses / hier.get(hier
+						.size() - 1).numberOfAccesses) * MainMemory.accessTime);
+		for (int i = hier.size() - 2; i > 0; i--) {
+
+			penalty = hier.get(i).accessTime
+					+ ((hier.get(i).numberOfMisses / hier.get(i).numberOfAccesses) * penalty);
+		}
+		amat = hier.get(0).accessTime
+				+ ((hier.get(0).numberOfMisses / hier.get(0).numberOfAccesses) * penalty);
+
+		return amat;
+	}
+	
 	
 }

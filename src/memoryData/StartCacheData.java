@@ -71,6 +71,9 @@ public class StartCacheData {
 		memory.RAM.put(doola1, "tary3");
 
 		
+		// cycles to get data from memory
+		memory.accessTime = 1000;
+		
 		
 		TheBigCacheData cache = new TheBigCacheData(s,l,1);
 		DirectMappedCacheData a = new DirectMappedCacheData(s,l,1);
@@ -79,6 +82,10 @@ public class StartCacheData {
 		//cache.hier.add(a);
 		//cache.hier.add(b);
 		//cache.hier.add(c);
+		
+		a.accessTime = 10;
+		b.accessTime = 20;
+		c.accessTime = 30;
 
 	
 		cache.Write(1, "el3b yasta");
@@ -105,5 +112,6 @@ public class StartCacheData {
 		System.out.println(b.getStatistics());
 		System.out.println(c.getStatistics());
 		//System.out.println();
+		System.out.println(cache.getAverageMemoryAccessTime());
 		}
 }

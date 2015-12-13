@@ -280,24 +280,30 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 		}
 	}
 	
-	public double hitRatio(){
-		return (this.numberOfAccesses - this.numberOfMisses) / this.numberOfAccesses;
+	public double hitRatio() {
+		return (this.numberOfAccesses - this.numberOfMisses)
+				/ this.numberOfAccesses;
 	}
 	
-	public int getNumberOfAccess(){
-		return (int)this.numberOfAccesses;
-	}
-	
-	public int getNumberOfMisses(){
-		return (int)this.numberOfMisses;
-	}
-	
-	public String getStatistics(){
-		return "--------------------------------------------------------\n" +
-				"The number of Accesses is: " + this.getNumberOfAccess() + "\n"
-				+ "The number of misses is: " + this.getNumberOfMisses() + "\n"
-				+ "The hit ratio is: " + this.getHitRatio() + 
-				"\n--------------------------------------------------------";
+	public double getMissRatio(){
+		return this.numberOfMisses / this.numberOfAccesses;
 	}
 
+	public int getNumberOfAccess() {
+		return (int) this.numberOfAccesses;
+	}
+
+	public int getNumberOfMisses() {
+		return (int) this.numberOfMisses;
+	}
+
+	public String getStatistics() {
+		return "--------------------------------------------------------\n"
+				+ "The number of Accesses is: " + this.getNumberOfAccess()
+				+ "\n" + "The number of misses is: " + this.getNumberOfMisses()
+				+ "\n" + "The hit ratio is: " + this.getHitRatio()
+				+ "\n" + "The miss ratio is: " + this.getMissRatio()
+				+ "\nThe access time is: " + this.accessTime
+				+ "\n--------------------------------------------------------";
+	}
 }
