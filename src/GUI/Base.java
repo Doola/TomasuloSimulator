@@ -420,8 +420,9 @@ public class Base extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) throws InterruptedException, IndexOutOfMemoryBoundsException {                                         
         // TODO add your handling code here:
+    	//Main.main(null);
     	new Main();
-        Front front= new  Front(filename,LevelsOfCache,CacheLevel,Jcomb1,CacheDetails,RevStationSize, MemoryAccessTime, NoOfLoads,  NoOfStores, NoOfAdds, NoOfMults ); 
+        Front front= new Front(filename,LevelsOfCache,CacheLevel,Jcomb1,CacheDetails,RevStationSize, MemoryAccessTime, NoOfLoads,  NoOfStores, NoOfAdds, NoOfMults ); 
         front.setVisible(true);
         this.setVisible(false);
 

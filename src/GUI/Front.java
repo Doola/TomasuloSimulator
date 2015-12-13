@@ -25,11 +25,12 @@ import tomasoluAlgorithim.*;
  */
 public class Front extends javax.swing.JFrame {
  public String filename;
- public Object [][] ReservationStation = new Object [2][8]; /// CHANGE TO Main.ReservationStations.length
+ public Object [][] ReservationStation = new Object [Main.NumberOfReservationStations][8]; /// CHANGE TO Main.ReservationStations.length
  public Object [][] RegisterStatus = new Object[1][10];
- public Object [][] ROB = new Object[4][6]; // change according to input.
+ public Object [][] ROB = new Object[Main.ROBSize][6]; // change according to input.
  String LevelsOfCache;
  int CacheLevel;
+ int Cycle=0;
  String [] Jcomb1;
  String CacheDetails;
  int RevStationSize;
@@ -58,11 +59,20 @@ public class Front extends javax.swing.JFrame {
     	
 
     }
-    
+    public void repopulate(){
+    	populateROB();
+    	populateReservationStation();
+    	populateRegisterStatus();
+        initComponents();
+    }
     public void populateReservationStation(){
     	
-    	for (int i = 0; i < Main.ReservationStations.length; i++) {
+    	for (int i = 0; i < Main.NumberOfReservationStations; i++) {
+    		
+    			System.out.println(Main.ReservationStations[i].name.toString());
 				ReservationStation[i][0]=Main.ReservationStations[i].name.toString();
+				if(ReservationStation[i][1]!=null){
+					System.out.println("TWo cakes");
 				ReservationStation[i][1]=Main.ReservationStations[i].busy;
 				ReservationStation[i][2]=Main.ReservationStations[i].operation.toString();
 				ReservationStation[i][3]=Main.ReservationStations[i].Vi.Name.toString();
@@ -70,7 +80,7 @@ public class Front extends javax.swing.JFrame {
 				ReservationStation[i][5]=Main.ReservationStations[i].Qi;
 				ReservationStation[i][6]=Main.ReservationStations[i].Qj;
 				ReservationStation[i][7]=Main.ReservationStations[i].Address;
-
+				}
 			
 		}
     	//System.out.println(ReservationStation[1][1]);
@@ -87,7 +97,7 @@ public void populateRegisterStatus(){
 
 public void populateROB(){
 	ROB[0][0]= "#4";  
-	for (int i = 0; i < Main.ROB.length; i++) { // change it to 10
+	for (int i = 1; i < Main.ROB.length; i++) { // change it to 10
 		if (Main.head==1 && Main.tail==1){
 			ROB[i][0]="Head";
 		}
@@ -100,6 +110,7 @@ public void populateROB(){
 		if (Main.head==0 && Main.tail==0){
 			ROB[i][0]=null;
 		}
+		
 			ROB[i][1]="#"+Main.ROB[i].index;
 			ROB[i][2]=Main.ROB[i].type;
 			ROB[i][3]=Main.ROB[i].Destination.Name;
@@ -183,7 +194,7 @@ public void populateROB(){
 
         jTextField2.setFont(new java.awt.Font("Traditional Arabic", 0, 20)); // NOI18N
         jTextField2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField2.setText("0");
+        jTextField2.setText(Cycle+"");
         jTextField2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField2ActionPerformed(evt);
@@ -365,7 +376,7 @@ public void populateROB(){
         jButton1.setText("Choose File");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+               // jButton1ActionPerformed(evt);
             }
         });
 
@@ -403,6 +414,10 @@ public void populateROB(){
 				// TODO Auto-generated method stub
 				try {
 					Main.Cycle();
+					repopulate();
+					Cycle++;
+					revalidate();
+					repaint();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					//e.printStackTrace();
@@ -494,17 +509,17 @@ public void populateROB(){
         pack();
     }// </editor-fold>                        
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
-        // TODO add your handling code here:
-        JFileChooser chooser = new JFileChooser();
-        chooser.showOpenDialog(null);
-        File file =chooser.getSelectedFile();
-        filename= file.getAbsolutePath();
-        jTextField1.setText(filename);
-        Main.filePath=filename;
-        System.out.println("data loaded");
-        
-    }                                        
+//    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+//        // TODO add your handling code here:
+//        JFileChooser chooser = new JFileChooser();
+//        chooser.showOpenDialog(null);
+//        File file =chooser.getSelectedFile();
+//        filename= file.getAbsolutePath();
+//        jTextField1.setText(filename);
+//        Main.filePath=filename;
+//        System.out.println("data loaded");
+//        
+//    }                                        
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {                                            
         // TODO add your handling code here:

@@ -9,7 +9,7 @@ public class FunctionalUnit {
 	public int Qi, Qj, ROBDST, Address;
 	int cycles;
 	public int destination;
-	int cyclesRemaining;
+	int cyclesRemaining = 5;
 	public String value;
 	int instructionPosition;
 
@@ -32,6 +32,9 @@ public class FunctionalUnit {
 	public FunctionalUnit(FunctionalUnitName name)
 	{
 		this.name = name;
+		this.Vi = new Register(null, "0");
+		this.Vj = new Register(null, "0");
+		this.operation = InstructionName.EMPTY;
 	}
 	
 	

@@ -12,9 +12,9 @@ import memoryData.*;
 import memoryInstructions.*;
 
 public class Main {
-	static int ROBSize;
-	static int NumberOfReservationStations;
-	static int NumberOfRegisters;
+	public static int ROBSize=5;
+	public static int NumberOfReservationStations;
+	static int NumberOfRegisters=8;
 	static int NumberOfInstructions = 0;
 	public static ROBEntry[] ROB = new ROBEntry[ROBSize];
 	public static int head = 1;
@@ -54,12 +54,15 @@ public class Main {
 		this.NoOfAdds= Base.NoOfAdds;
 		this.NoOfMults=Base.NoOfMults;
 		this.Jcomb1= Base.Jcomb1; //s,l,m,cache mem access time,write policy
-		
+		// initilizing rob
+				for (int j=1; j<ROBSize; j++){
+					ROB[j]= new ROBEntry();
+				}
 		
 		System.out.println(Arrays.toString(Jcomb1));
-		System.out.println(NoOfMults);
+		System.out.println("Number of multiple reservation stations" +NoOfMults);
 		main(null);
-		for (int i = 1; i < 32; i++) 
+		for (int i = 1; i < 8; i++) 
 		{
 			RegisterFile[i] = new Register(RegisterName.valueOf("R" + i), "");
 		}
@@ -69,6 +72,7 @@ public class Main {
 		NumberOfReservationStations= NoOfLoads+NoOfStores+NoOfAdds+NoOfMults;
 		System.out.println("No of res stations"+ NumberOfReservationStations);
 		ReservationStations= new FunctionalUnit[NumberOfReservationStations];
+		
 		int i=0;
 	
 		while (i<NoOfLoads){// FIX By creating new values.
@@ -237,7 +241,14 @@ public class Main {
 			ReservationStations[freeReservationStation].instructionPosition = CurrentInstruction;
 
 			ReservationStations[freeReservationStation].destination = tail;
+			///
+			System.out.println("freeRs==>"+freeReservationStation);
+			System.out.println("pc"+CurrentInstruction);
+			System.out.println("Program code::"+ ProgramCode[CurrentInstruction].Name);
+			System.out.println("RS::"+ ProgramCode[CurrentInstruction].Rs);
 
+			
+			////
 			if (!ProgramCode[CurrentInstruction].Name.toString().equals("RET")
 					&& !(ProgramCode[CurrentInstruction].Name.toString()
 							.equals("JMP"))) {
@@ -250,7 +261,7 @@ public class Main {
 					ReservationStations[freeReservationStation].Qi = RegisterStatus[registerIndex];
 				}
 			}
-			// //
+			// 
 			if (ProgramCode[CurrentInstruction].Name.toString().equals("ADD")
 					|| ProgramCode[CurrentInstruction].Name.toString().equals(
 							"MUL")
@@ -269,6 +280,9 @@ public class Main {
 				}
 
 			}
+			/////
+			//System.out.println();
+			////
 			if (!ProgramCode[CurrentInstruction].Name.toString().equals("SW"))
 				ROB[tail].Destination.Name = ProgramCode[CurrentInstruction].Rd;
 			else
@@ -352,8 +366,8 @@ public class Main {
 			return ~(Integer.parseInt(fu.Vi.Value) & Integer
 					.parseInt(fu.Vj.Value)) + "";
 		case MUL:
-			return Integer.parseInt(fu.Vi.Value)
-					* Integer.parseInt(fu.Vj.Value) + "";
+			return (Integer.parseInt(fu.Vi.Value)
+					* Integer.parseInt(fu.Vj.Value)) + "";
 		}
 		return null;
 	}
@@ -369,6 +383,7 @@ public class Main {
 					&& ReservationStations[i].cyclesRemaining >= 0) {
 				// Execute the instruction then
 				if (ReservationStations[i].cyclesRemaining == 0) {
+					System.out.println("operation"+ReservationStations[i].operation);
 					if (ReservationStations[i].operation.equals("SW")) {
 						if (ReservationStations[i].Qi == 0) {
 							// ////////
@@ -432,6 +447,9 @@ public class Main {
 
 			if (temp.cyclesRemaining == -1 && CanWrite) {
 				CanWrite = !CanWrite;
+				System.out.println("temp.dest" + temp.operation);
+				System.out.println("ROB .value" + ROB[temp.destination].Value);
+				
 				ROB[temp.destination].Value = temp.value;
 				// if store
 				if (temp.name.equals("STORE") && temp.Qj == 0)
@@ -461,6 +479,10 @@ public class Main {
 			IndexOutOfMemoryBoundsException {
 		// wrong prediction
 		for (int i = 1; i < ROB.length; i++) {
+			System.out.println("ROB number:"+ i);
+			System.out.println("head:"+ head);
+			System.out.println("ready:"+ ROB[i].Ready );
+			
 			if (ROB[i].Ready && head == i) {
 				if (!ROB[i].WrongPrediction) {
 					// save value in Memory/REG then (cahce)
@@ -485,7 +507,7 @@ public class Main {
 					int registerIndex = Integer.parseInt(s);
 					RegisterStatus[registerIndex] = 0;
 					head++;
-					if (head > ROB.length)
+					if (head > ROB.length-1)
 						head = 1;
 				} else {
 					if (ROB[i].taken)
@@ -514,41 +536,56 @@ public class Main {
 	public static void main(String[] args) throws InterruptedException,
 			IndexOutOfMemoryBoundsException
 	{
-		Main m= new Main();	
+		//Main m= new Main();	
 		
 		// intialise memory we hakaza
 				int s = 16 * 1024;
 				int l = 16;
 				// KF. 
 				dataCache = new TheBigCacheData(s,l,1);
-	    for (int i=0; i<Jcomb1.length; i++)
+	    for (int i=0; i<Jcomb1.length-1; i++)
 		{
-			String cacheDetails= Jcomb1[i].substring(1,Jcomb1.length+1);
+	    	// (1,2,3,4,WT)
+	    	System.out.println(Jcomb1[i]);
+	    	if(Jcomb1[i]!=null){
+			String cacheDetails= Jcomb1[i].substring(1,Jcomb1[i].length()-1);
 			String [] CacheFullDetails= cacheDetails.split(",");
 		    System.out.println(cacheDetails);
 		    System.out.println(Arrays.toString(CacheFullDetails));
 		    
-		    // CacheFullDetails[0] = S
-		    // CacheFullDetails[1] = L
-		    // CacheFullDetails[2] = M
+		    int sC= Integer.parseInt(CacheFullDetails[0]);
+		    int lC= Integer.parseInt(CacheFullDetails[1]);
+		    int mC= Integer.parseInt(CacheFullDetails[2]);
 		    
-		    
+		    System.out.println("S= "+ sC);
+		    System.out.println("L= "+ lC);
+
+		    System.out.println("M= "+ mC);
+
 		    // fully Asos
 		    if(Integer.parseInt(CacheFullDetails[1]) ==  Integer.parseInt(CacheFullDetails[2])){
-		    	
+		    	FullyAsosciativeCache fullyAssociative = new FullyAsosciativeCache(sC, lC, mC);
+		    	FullyAsosciativeCacheData fullyAssociativeData = new FullyAsosciativeCacheData(sC, lC, mC);
+
 		    }
 		    else {
 		    	// direct mapped
 		    	if(Integer.parseInt(CacheFullDetails[2]) == 1){
 		    		
+		    		DirectMappedCache directCache = new DirectMappedCache(sC, lC, mC);
+		    		DirectMappedCacheData directCacheData = new DirectMappedCacheData(sC, lC, mC);
+		    		
 		    	}
 		    	// set asos
 		    	else{
-		    		
+		    		SetAssociative setAssociative = new SetAssociative(sC, lC, mC);
+		    		SetAssociativeData setAssociativeData = new SetAssociativeData(sC, lC, mC);
+
 		    	}
 		    }
 		    
 		    /////
+	    	}
 		}
 
 		// Data Cache
@@ -594,8 +631,8 @@ public class Main {
 		String filString = "/Users/ahmedabodeif1/Desktop/tomTest";
 		LoadDataToMemory(0);
 		//Fetch();
-		Cycle();
-		System.out.println(ProgramCode[0].toString());
+		//Cycle();
+		//System.out.println(ProgramCode[0].toString());
 		// System.out.println(instructionCache.Read(0));
 		// System.out.println(instructionCache.Read(3));
 	}
@@ -606,9 +643,9 @@ public class Main {
 		Fetch();
 		Issue();
 		
-		printROB();
+		//printROB();
 		printReservationStations();
-		printRegisterFile();
+		//printRegisterFile();
 		printRegisterStatus();
 		
 		Execute();
@@ -617,15 +654,15 @@ public class Main {
 		// cycles++;
 	}
 
-	public static void printROB() {
-
-		System.out.println("===============================================");
-		for (int i = 0; i < ROBSize; i++) {
-			System.out.println(ROB[i].toString());
-		}
-		System.out.println("===============================================");
-
-	}
+//	public static void printROB() {
+//
+//		System.out.println("===============================================");
+//		for (int i = 0; i < ROBSize; i++) {
+//			System.out.println(ROB[i].toString());
+//		}
+//		System.out.println("===============================================");
+//
+//	}
 
 	public static void printReservationStations() {
 

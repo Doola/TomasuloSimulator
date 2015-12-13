@@ -13,10 +13,17 @@ public class ROBEntry {
 
 	public ROBEntry(Register Destination, String Value, Boolean Ready,
 			Enum<ROBType> type) {
-		this.Destination = Destination;
+		this.Destination = Destination ;
 		this.Value = Value;
 		this.Ready = Ready;
 		this.type = type;
+	}
+	public ROBEntry(){
+		this.Destination= new Register(null,null);
+		this.Ready=false;
+		this.index=0;
+		this.Value="";
+		this.WrongPrediction = false;
 	}
 
 	public String toString() {
