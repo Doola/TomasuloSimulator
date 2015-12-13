@@ -1,6 +1,7 @@
 package memoryData;
 
 import java.util.LinkedList;
+
 import memory.*;
 
 public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheData {
@@ -36,11 +37,13 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 
 		// no need to check for valid bits because list is empty when no data is
 		// inserted
+		this.numberOfAccesses++;
 		for (int i = 0; i < lines.size(); i++) {
 			if (lines.get(i).Tag.equals(tagBinary)) {
 				return lines.get(i).Data[Integer.parseInt(offsetBinary, 2)];
 			}
 		}
+		this.numberOfMisses++;
 		return null;
 	}
 
@@ -52,6 +55,8 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 		String tagBinary = word.substring(0, lengthTag);
 		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 
+		this.numberOfAccesses++;
+		
 		for (int i = 0; i < lines.size(); i++) {
 			if (lines.get(i).Tag.equals(tagBinary)) {
 				if (this.WriteBack) {
@@ -64,6 +69,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 				return true;
 			}
 		}
+		this.numberOfMisses++;
 		return false;
 	}
 
@@ -149,6 +155,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 
 			}
 		}
+		this.numberOfAccesses++;
 	}
 	
 	
@@ -237,6 +244,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 				lines.addFirst(temp);
 			}
 		}
+		this.numberOfAccesses++;
 	}
 
 	
@@ -244,6 +252,7 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 	// adding a word Address from Memory
 	
 	public void writeBlock(int wordAddress, String[] data) {
+		this.numberOfAccesses++;
 		String word = Integer.toBinaryString(wordAddress);
 		for (int i = word.length(); i <= 16; i++) {
 			word = "0" + word;
@@ -269,6 +278,26 @@ public class FullyAsosciativeCacheData extends TheBigCacheData implements CacheD
 				this.lines.addFirst(new CacheLineData(data, tagBinary));
 			}
 		}
+	}
+	
+	public double hitRatio(){
+		return (this.numberOfAccesses - this.numberOfMisses) / this.numberOfAccesses;
+	}
+	
+	public int getNumberOfAccess(){
+		return (int)this.numberOfAccesses;
+	}
+	
+	public int getNumberOfMisses(){
+		return (int)this.numberOfMisses;
+	}
+	
+	public String getStatistics(){
+		return "--------------------------------------------------------\n" +
+				"The number of Accesses is: " + this.getNumberOfAccess() + "\n"
+				+ "The number of misses is: " + this.getNumberOfMisses() + "\n"
+				+ "The hit ratio is: " + this.getHitRatio() + 
+				"\n--------------------------------------------------------";
 	}
 
 }

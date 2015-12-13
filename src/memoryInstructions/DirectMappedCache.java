@@ -126,7 +126,7 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 				this.BlockSize);
 		CacheLine temp = new CacheLine(data, tagBinary);
 		this.lines[index] = temp;
-		
+		this.numberOfAccesses++;
 	}
 
 	void addToCache(int wordAddress, String data)
@@ -213,9 +213,7 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 				}
 		}
 
-		this.numberOfAccesses++;
-		this.numberOfAccesses++;
-		this.numberOfMisses++;
+		
 		
 		int blockOffset = Integer.parseInt(offsetBinary, 2);
 		String[] newData = MainMemory.Read(wordAddress - blockOffset,
@@ -223,6 +221,7 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		newData[Integer.parseInt(offsetBinary, 2)] = data;
 		CacheLine temp = new CacheLine(newData, tagBinary);
 		this.lines[index] = temp;
+		this.numberOfAccesses++;
 	}
 
 	@Override
@@ -247,7 +246,7 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 
 		// #cycle
 
-		numberOfAccesses++;
+		this.numberOfAccesses++;
 
 		if (lines[index].ValidBit) {
 			if (lines[index].Tag.equals(tagBinary)) {
@@ -280,7 +279,7 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		// the address is present thus we write it. If this level is writeBack
 		// we set the dirty bit and return true.
 
-		numberOfAccesses++;
+		this.numberOfAccesses++;
 		if (lines[index].ValidBit) {
 			if (lines[index].Tag.equals(tagBinary)) {
 				if (this.WriteBack) {
@@ -291,7 +290,7 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 				return true;
 			}
 		}
-		numberOfMisses++;
+		this.numberOfMisses++;
 		return false;
 	}
 
@@ -310,5 +309,26 @@ public class DirectMappedCache extends TheBigCache implements Cache {
 		lines[index].Tag = tagBinary;
 		if (this.WriteBack)
 			this.DirtyBit[index] = true;
+		this.numberOfAccesses++;
+	}
+	
+	public double hitRatio(){
+		return (this.numberOfAccesses - this.numberOfMisses) / this.numberOfAccesses;
+	}
+	
+	public int getNumberOfAccess(){
+		return (int)this.numberOfAccesses;
+	}
+	
+	public int getNumberOfMisses(){
+		return (int)this.numberOfMisses;
+	}
+	
+	public String getStatistics(){
+		return "--------------------------------------------------------\n" +
+				"The number of Accesses is: " + this.getNumberOfAccess() + "\n"
+				+ "The number of misses is: " + this.getNumberOfMisses() + "\n"
+				+ "The hit ratio is: " + this.getHitRatio() + 
+				"\n--------------------------------------------------------";
 	}
 }

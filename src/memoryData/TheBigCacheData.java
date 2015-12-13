@@ -29,38 +29,32 @@ public class TheBigCacheData implements CacheData{
 		
 	}
 	public String Read(int wordAddress) throws IndexOutOfMemoryBoundsException{
+		
 		// Loop through all levels of cache till we find the word is found
 		for (int i = 0; i < hier.size(); i++) 
-		{			 
-			if(hier.get(i).Read(wordAddress)!= null)
+		{	
+			// When the word is found in a cache level then must copy to
+			// levels above.
+			String word = hier.get(i).Read(wordAddress);
+			if(word != null)
 			{
-				// adding required word address to levels of cache that didnot 
-				// contain the word.
+				// adding required word address to levels of cache that did not 
+				// contain this word.
 				// when I add the required address to the cache I need to check
 				// before removing blocks if they are write back, then I need to 
 				// copy the data contained in them to the lower levels till I hit 
-				// a write through cache
+				// a write back cache
 				
 				for(int k=0; k<i; k++){
-					if(hier.get(k).WriteBack){
-						// put the data in the removed cache to lower levels
-						// I will keep in going to lower levels until I reach
-						// a write through level
-						boolean stop = false;
-						for(int j=k; j<i && !stop;j++)
-						{
-							
-						}
-					}
 					hier.get(k).addToCache(wordAddress);
-				}
-				return hier.get(i).Read(wordAddress);
+				}	
+				return word;
 			}
-				
-		}		
+		}	
+		
+		// The address was not found in any cache level
 		// this address is in main memory so we need to fetch it from there
-		// the block size is different for each cache so we need to pass block size
-		// and call this recursively till we are at the top level.
+		// then copy the block to all levels of cache.
 		addToCache(wordAddress);
 		String address = Integer.toBinaryString(wordAddress);
 		while(address.length() < 16)
@@ -81,14 +75,22 @@ public class TheBigCacheData implements CacheData{
 				// add data to lower levels to ensure consistency
 				// add updated blocks to upper levels that did not contain the block
 				// if this level is writeBack stop
-				// if write through
+				// if write through then copy to lower levels till we reach 
+				// a write back level.
+				
 				boolean stop = false;
+				if(hier.get(i).WriteBack)
+					stop = true;
 				for(int k =i+1; k < hier.size() && !stop; k++){
 					if(hier.get(k).WriteBack)
 						stop = true;
+					// should always be a hit due to consistency.
 					hier.get(k).Write(wordAddress, data);
 				}
-				// copy data to upper levels that didnot contain the data
+				// copy data to upper levels that did not contain the data.
+				// The misses for these levels we are already counted
+				// as we were exploring the hierarchy from top to bottom.
+				// The next access will be counted as hits.
 				for(int j = i-1; j >= 0; j--)
 					hier.get(j).addToCache(wordAddress, data);
 					
@@ -123,10 +125,24 @@ public class TheBigCacheData implements CacheData{
 	
 	void addToCache(int wordAddress) throws IndexOutOfMemoryBoundsException
 	{
-		// I need to check when I remove data if this is a write back then
-		// 
 		for(int i=0; i<hier.size(); i++)
 			hier.get(i).addToCache(wordAddress);
+	}
+	
+	public double getAverageMemoryAccessTime(){
+		// loop over caches applying the formula
+		// AMAT = hitTime + (missRate * AverageMissPenalty[n])
+		// AverageMissPenalty[n] = hitTime[n] + (missRate[n] * AverageMissPenalty[n+1])
+		
+		double amat = 0 ;
+		double penalty = 0;
+		for (int i = hier.size()-1; i > -1; i--) {
+			if(i == hier.size() - 1)
+			penalty = hier.get(i).accessTime + 
+					((hier.get(i).numberOfMisses / hier.get(i).numberOfAccesses) * );
+		}
+		
+		return 0;
 	}
 	
 	double getHitRatio()

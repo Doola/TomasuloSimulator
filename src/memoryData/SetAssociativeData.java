@@ -134,7 +134,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 				this.BlockSize);
 		CacheLineData temp = new CacheLineData(data, tagBinary);
 		this.cache[index / setSize].Lines[index % setSize] = temp;
-		
+		this.numberOfAccesses++;
 		
 	}
 
@@ -239,6 +239,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 				newData[Integer.parseInt(offsetBinary, 2)] = data;
 				CacheLineData temp = new CacheLineData(newData, tagBinary);
 				this.cache[index / setSize].Lines[index % setSize] = temp;
+				this.numberOfAccesses++;
 	}
 
 	@Override
@@ -254,7 +255,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 				+ lengthIndex + 1);
 		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 		int index = Integer.parseInt(indexBinary, 2);
-
+		this.numberOfAccesses++;
 		// If the line is not valid then nothing was ever written in it.
 		// Compare the tag of word address with tag in line, If equal then
 		// the address is present thus we return it, else we return null
@@ -289,6 +290,7 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 		String offsetBinary = word.substring(lengthTag + lengthIndex + 1);
 		int index = Integer.parseInt(indexBinary, 2);
 
+		this.numberOfAccesses++;
 		// If the line is not valid then nothing was ever written in it.
 		// Compare the tag of word address with tag in line, If equal then
 		// the address is present thus we write it. If this level is writeBack
@@ -304,12 +306,14 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 				}
 			}
 		}
+		this.numberOfMisses++;
 		return false;
 	}
 
 	
 	public void writeBlock(int wordAddress, String[] data)
 	{
+		this.numberOfAccesses++;
 		String word = Integer.toBinaryString(wordAddress);
 		for (int i = word.length(); i <= 16; i++) {
 			word = "0" + word;
@@ -323,6 +327,26 @@ public class SetAssociativeData extends TheBigCacheData implements CacheData {
 		cache[index].Lines[0].Tag = tagBinary;
 		if(this.WriteBack)
 			this.DirtyBits[index][0] = true;
+	}
+	
+	public double hitRatio(){
+		return (this.numberOfAccesses - this.numberOfMisses) / this.numberOfAccesses;
+	}
+	
+	public int getNumberOfAccess(){
+		return (int)this.numberOfAccesses;
+	}
+	
+	public int getNumberOfMisses(){
+		return (int)this.numberOfMisses;
+	}
+	
+	public String getStatistics(){
+		return "--------------------------------------------------------\n" +
+				"The number of Accesses is: " + this.getNumberOfAccess() + "\n"
+				+ "The number of misses is: " + this.getNumberOfMisses() + "\n"
+				+ "The hit ratio is: " + this.getHitRatio() + 
+				"\n--------------------------------------------------------";
 	}
 
 }
